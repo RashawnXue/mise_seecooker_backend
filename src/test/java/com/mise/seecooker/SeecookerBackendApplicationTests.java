@@ -1,10 +1,10 @@
-package com.mise.mise_seecooker_backend;
+package com.mise.seecooker;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MiseSeecookerBackendApplicationTests {
+class SeecookerBackendApplicationTests {
 
     @Test
     void contextLoads() {

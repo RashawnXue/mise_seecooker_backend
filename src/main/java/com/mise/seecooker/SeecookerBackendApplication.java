@@ -1,13 +1,13 @@
-package com.mise.mise_seecooker_backend;
+package com.mise.seecooker;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MiseSeecookerBackendApplication {
+public class SeecookerBackendApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MiseSeecookerBackendApplication.class, args);
+        SpringApplication.run(SeecookerBackendApplication.class, args);
     }
 
 }
