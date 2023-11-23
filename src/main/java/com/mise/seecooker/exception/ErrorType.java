@@ -30,7 +30,14 @@ public enum ErrorType {
     /**
      * 业务相关错误类型
      */
-    USER_NOT_LOGIN(200001, "USER NOT LOGIN", 400); /* 用户未登陆 */
+    USER_NOT_LOGIN(200001, "User not login", 400), /* 用户未登陆 */
+
+    PASSWORD_ERROR(200002, "Password error", 400), /* 用户密码输入错误 */
+
+    USER_NOT_EXIST(200003, "User not exist", 400), /* 用户不存在 */
+
+    USER_ALREADY_EXIST(200004, "User already exist", 400); /* 用户不存在 */
+
 
     private final int code;
     private final String message;

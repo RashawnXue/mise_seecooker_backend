@@ -1,6 +1,5 @@
 package com.mise.seecooker.exception;
 
-import com.mise.seecooker.exception.ErrorType;
 import lombok.Getter;
 
 /**
@@ -23,14 +22,20 @@ public class BizException extends RuntimeException{
      * http状态码
      */
     private final int httpCode;
+    /**
+     * 错误类型
+     */
+    private final ErrorType errorType;
 
     public BizException(ErrorType type) {
+        this.errorType = type;
         this.code = type.getCode();
         this.message = type.getMessage();
         this.httpCode = type.getHttpCode();
     }
 
     public BizException(ErrorType type, String message) {
+        this.errorType = type;
         this.code = type.getCode();
         this.message = message;
         this.httpCode = type.getHttpCode();

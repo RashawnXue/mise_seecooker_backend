@@ -4,6 +4,11 @@ import lombok.*;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -59,4 +64,16 @@ public class UserPO {
      * 用户发布的帖子id列表
      */
     private List<Long> posts;
+
+    /**
+     * 数据创建的时间戳
+     */
+    @CreationTimestamp
+    private LocalDateTime createTime;
+
+    /**
+     * 数据最后一次更新的时间戳
+     */
+    @UpdateTimestamp
+    private LocalDateTime updateTime;
 }
