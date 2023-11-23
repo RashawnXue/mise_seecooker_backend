@@ -1,6 +1,7 @@
 package com.mise.seecooker.service;
 
 import com.mise.seecooker.entity.vo.user.UserInfoVO;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 用户业务服务层接口
@@ -15,9 +16,10 @@ public interface UserService {
      *
      * @param username 用户名
      * @param password 用户密码
+     * @param avatar
      * @return 新增用户id
      */
-    Long addUser(String username, String password);
+    Long addUser(String username, String password, String avatar);
 
     /**
      * 用户登陆
@@ -46,4 +48,12 @@ public interface UserService {
      * @return 当前登陆的用户信息
      */
     UserInfoVO getCurrentLoginUser();
+
+    /**
+     * 上传头像，返回url
+     *
+     * @param avatar 头像文件
+     * @return 上传成功返回url，失败返回null
+     */
+    String uploadAvatar(MultipartFile avatar) throws Exception;
 }

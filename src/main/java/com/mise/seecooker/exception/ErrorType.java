@@ -36,8 +36,9 @@ public enum ErrorType {
 
     USER_NOT_EXIST(200003, "User not exist", 400), /* 用户不存在 */
 
-    USER_ALREADY_EXIST(200004, "User already exist", 400); /* 用户不存在 */
+    USER_ALREADY_EXIST(200004, "User already exist", 400), /* 用户不存在 */
 
+    FILE_NOT_NAMED(300001, "File not named", 400); /* 文件未命名 */
 
     private final int code;
     private final String message;

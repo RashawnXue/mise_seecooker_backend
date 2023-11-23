@@ -2,6 +2,9 @@ package com.mise.seecooker.service.impl;
 
 import cn.dev33.satoken.secure.BCrypt;
 import cn.dev33.satoken.stp.StpUtil;
+import com.aliyun.oss.common.auth.CredentialsProviderFactory;
+import com.aliyun.oss.common.auth.EnvironmentVariableCredentialsProvider;
+import com.aliyuncs.exceptions.ClientException;
 import com.github.javafaker.Faker;
 import com.mise.seecooker.dao.UserDao;
 import com.mise.seecooker.entity.po.UserPO;
@@ -43,14 +46,14 @@ public class UserServiceImplTest {
         String username1 = faker.name().username();
         String username2 = faker.name().username();
         String username3 = faker.name().username();
-        Long id1 = userService.addUser(username1, "12345678abc");
-        Long id2 = userService.addUser(username2, "12345678efg");
-        Long id3 = userService.addUser(username3, "12345678hij");
+        Long id1 = userService.addUser(username1, "12345678abc", faker.avatar().image());
+        Long id2 = userService.addUser(username2, "12345678efg", faker.avatar().image());
+        Long id3 = userService.addUser(username3, "12345678hij", faker.avatar().image());
         assertEquals(username1, userDao.findById(id1).get().getUsername());
         assertEquals(username2, userDao.findById(id2).get().getUsername());
         assertEquals(username3, userDao.findById(id3).get().getUsername());
 
-        assertThrows(BizException.class, ()->userService.addUser(username1, "12345678abc"));
+        assertThrows(BizException.class, ()->userService.addUser(username1, "12345678abc", faker.avatar().image()));
     }
 
     @Test
@@ -99,5 +102,13 @@ public class UserServiceImplTest {
         assertEquals(username, user.getUsername());
         StpUtil.logout();
     }
+
+    @Test
+    void uploadAvatarTest() throws ClientException {
+        // 使用环境变量中获取的RAM用户的访问密钥配置访问凭证。
+        EnvironmentVariableCredentialsProvider credentialsProvider = CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider();
+        System.out.println(credentialsProvider);
+    }
+
 
 }

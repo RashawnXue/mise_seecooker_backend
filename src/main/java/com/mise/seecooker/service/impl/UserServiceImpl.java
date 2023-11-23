@@ -5,13 +5,17 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.mise.seecooker.dao.UserDao;
 import com.mise.seecooker.entity.po.UserPO;
 import com.mise.seecooker.entity.vo.user.UserInfoVO;
+import com.mise.seecooker.enums.ImageType;
 import com.mise.seecooker.exception.BizException;
 import com.mise.seecooker.exception.ErrorType;
 import com.mise.seecooker.service.UserService;
+import com.mise.seecooker.util.AliOSSUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -26,7 +30,7 @@ public class UserServiceImpl implements UserService {
     private final UserDao userDao;
 
     @Override
-    public Long addUser(String username, String password) {
+    public Long addUser(String username, String password, String avatar) {
         UserPO user = userDao.findByUsername(username);
         // 用户已存在，抛出异常
         if (user != null) {
@@ -35,10 +39,10 @@ public class UserServiceImpl implements UserService {
         user = userDao.save(UserPO.builder()
                         .username(username)
                         .password(BCrypt.hashpw(password))
-                        .avatar(null)
-                        .posts(null)
-                        .postRecipes(null)
-                        .likeRecipes(null)
+                        .avatar(avatar)
+                        .posts(List.of())
+                        .postRecipes(List.of())
+                        .likeRecipes(List.of())
                         .createTime(LocalDateTime.now())
                         .updateTime(LocalDateTime.now())
                         .build());
@@ -77,6 +81,14 @@ public class UserServiceImpl implements UserService {
         StpUtil.checkLogin();
         Long userId = StpUtil.getLoginIdAsLong();
         return getUserInfoById(userId);
+    }
+
+    @Override
+    public String uploadAvatar(MultipartFile avatar) throws Exception {
+        if (avatar == null) {
+            return null;
+        }
+        return AliOSSUtil.uploadFile(avatar, ImageType.AVATAR);
     }
 
     private UserInfoVO getUserInfoById(Long id) {

@@ -4,6 +4,7 @@ import cn.dev33.satoken.exception.NotLoginException;
 import com.mise.seecooker.entity.Result;
 import com.mise.seecooker.exception.BizException;
 import com.mise.seecooker.exception.ErrorType;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
