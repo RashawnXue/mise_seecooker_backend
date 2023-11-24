@@ -4,7 +4,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 
@@ -50,5 +54,18 @@ public class PostPO {
      * 帖子图片
      */
     private List<String> images;
+
+
+    /**
+     * 数据创建的时间戳
+     */
+    @CreationTimestamp
+    private LocalDateTime createTime;
+
+    /**
+     * 数据最后一次更新的时间戳
+     */
+    @UpdateTimestamp
+    private LocalDateTime updateTime;
 
 }
