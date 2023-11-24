@@ -13,6 +13,7 @@ import lombok.Setter;
  * @date 2023.11.23
  */
 @Getter
+@Setter
 public class RegisterVO {
     /**
      * 用户名
