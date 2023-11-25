@@ -1,9 +1,9 @@
 package com.mise.seecooker.service;
 
-import com.aliyuncs.exceptions.ClientException;
+import com.mise.seecooker.entity.vo.community.PostVO;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.util.List;
 
 /**
  * 帖子业务服务层接口类
@@ -21,4 +21,11 @@ public interface PostService {
      * @return 新增帖子id
      */
     Long addPost(String title, String content, MultipartFile[] images) throws Exception;
+
+    /**
+     * 获取帖子
+     *
+     * @return 帖子列表
+     */
+    List<PostVO> getPosts();
 }

@@ -9,6 +9,7 @@ import lombok.*;
  * @date 2023.11.25
  */
 @Data
+@Builder
 public class PostVO {
     /**
      * 帖子id

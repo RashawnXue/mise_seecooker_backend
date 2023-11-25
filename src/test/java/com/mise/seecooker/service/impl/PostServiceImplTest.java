@@ -4,15 +4,17 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.javafaker.Faker;
 import com.mise.seecooker.dao.PostDao;
 import com.mise.seecooker.dao.UserDao;
+import com.mise.seecooker.entity.po.PostPO;
 import com.mise.seecooker.entity.po.UserPO;
+import com.mise.seecooker.entity.vo.community.PostVO;
 import com.mise.seecooker.service.PostService;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.event.annotation.AfterTestMethod;
-import org.springframework.test.context.event.annotation.BeforeTestExecution;
-import org.springframework.test.context.event.annotation.BeforeTestMethod;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 
@@ -69,5 +71,24 @@ public class PostServiceImplTest {
         assertEquals(title, postDao.findById(postId).get().getTitle());
         List<Long> posts = userDao.findById(StpUtil.getLoginIdAsLong()).get().getPosts();
         assertEquals(postId, posts.get(posts.size()-1));
+    }
+
+    @Test
+    void getPostsTest() {
+        for (int i = 0 ; i < 10 ; ++i) {
+            String title = faker.name().title();
+            String content = faker.address().cityName();
+            postDao.save(PostPO.builder()
+                    .title(title)
+                    .content(content)
+                    .images(List.of(faker.internet().url()))
+                    .posterId(StpUtil.getLoginIdAsLong())
+                    .createTime(LocalDateTime.now())
+                    .updateTime(LocalDateTime.now())
+                    .build());
+        }
+        List<PostVO> posts = postService.getPosts();
+        assertEquals(10, posts.size());
+        posts.forEach(postVO -> assertEquals(StpUtil.getLoginIdAsLong(), userDao.findByUsername(postVO.getPosterName()).getId()));
     }
 }

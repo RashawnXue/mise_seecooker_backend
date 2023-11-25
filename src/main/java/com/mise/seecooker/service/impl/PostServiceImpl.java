@@ -6,6 +6,7 @@ import com.mise.seecooker.dao.PostDao;
 import com.mise.seecooker.dao.UserDao;
 import com.mise.seecooker.entity.po.PostPO;
 import com.mise.seecooker.entity.po.UserPO;
+import com.mise.seecooker.entity.vo.community.PostVO;
 import com.mise.seecooker.enums.ImageType;
 import com.mise.seecooker.service.PostService;
 import com.mise.seecooker.util.AliOSSUtil;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -65,5 +67,23 @@ public class PostServiceImpl implements PostService {
         userDao.save(poster);
 
         return postId;
+    }
+
+    @Override
+    public List<PostVO> getPosts() {
+        List<PostPO> posts = postDao.findAll();
+        posts.sort(Comparator.comparing(PostPO::getCreateTime));
+        return posts.stream().map(
+                postPO -> {
+                    UserPO poster = userDao.findById(postPO.getPosterId()).get();
+                    return PostVO.builder()
+                            .postId(postPO.getId())
+                            .title(postPO.getTitle())
+                            .cover(postPO.getImages().isEmpty() ? null : postPO.getImages().get(0))
+                            .posterName(poster.getUsername())
+                            .posterAvatar(poster.getAvatar())
+                            .build();
+                }
+        ).toList();
     }
 }

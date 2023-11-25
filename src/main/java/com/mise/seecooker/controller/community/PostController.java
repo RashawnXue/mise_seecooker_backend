@@ -2,14 +2,18 @@ package com.mise.seecooker.controller.community;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.mise.seecooker.entity.Result;
+import com.mise.seecooker.entity.vo.community.PostVO;
 import com.mise.seecooker.service.PostService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * 帖子相关业务控制层类
@@ -39,6 +43,18 @@ public class PostController {
         StpUtil.checkLogin();
         Long postId = postService.addPost(title, content, images);
         return Result.success(postId);
+    }
+
+    /**
+     * 获取帖子，每次至多获取10条
+     *
+     * @return 响应结果
+     */
+    @GetMapping("/posts")
+    public Result<List<PostVO>> getPosts() {
+        // TODO: 目前为直接获取所有帖子，后续迭代中修改为获取分页推荐10条帖子
+        List<PostVO> posts = postService.getPosts();
+        return Result.success(posts);
     }
 
 }
