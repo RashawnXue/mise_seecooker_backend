@@ -42,12 +42,14 @@ public class PostPO {
      * 帖子标题
      */
     @NotNull
+    @Column(length = 100)
     private String title;
 
     /**
      * 帖子内容
      */
     @NotNull
+    @Column(length = 3000)
     private String content;
 
     /**

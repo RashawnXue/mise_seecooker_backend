@@ -45,6 +45,7 @@ public class CommentPO {
      * 评论内容
      */
     @NotNull
+    @Column(length = 1000)
     private String content;
 
     /**

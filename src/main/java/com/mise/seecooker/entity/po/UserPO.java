@@ -36,13 +36,14 @@ public class UserPO {
      * 用户昵称
      */
     @NotNull
-    @Column(unique = true)
+    @Column(unique = true, length = 20)
     private String username;
 
     /**
      * 用户密码
      */
     @NotNull
+    @Column(length = 60)
     private String password;
 
     /**

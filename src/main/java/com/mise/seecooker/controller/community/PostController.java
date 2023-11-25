@@ -1,5 +1,6 @@
 package com.mise.seecooker.controller.community;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.mise.seecooker.entity.Result;
 import com.mise.seecooker.service.PostService;
 import jakarta.validation.constraints.NotNull;
@@ -34,6 +35,8 @@ public class PostController {
      */
     @PostMapping("/post")
     public Result<Long> publishPost(@NotNull String title, @NotNull String content, MultipartFile[] images) throws Exception{
+        // 未登录不能发布帖子
+        StpUtil.checkLogin();
         Long postId = postService.addPost(title, content, images);
         return Result.success(postId);
     }
