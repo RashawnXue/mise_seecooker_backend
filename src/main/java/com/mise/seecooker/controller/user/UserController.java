@@ -1,8 +1,8 @@
 package com.mise.seecooker.controller.user;
 
 import com.mise.seecooker.entity.Result;
-import com.mise.seecooker.entity.vo.LoginVO;
-import com.mise.seecooker.entity.vo.RegisterVO;
+import com.mise.seecooker.entity.vo.user.LoginVO;
+import com.mise.seecooker.entity.vo.user.RegisterVO;
 import com.mise.seecooker.entity.vo.user.UserInfoVO;
 import com.mise.seecooker.service.UserService;
 import lombok.extern.slf4j.Slf4j;

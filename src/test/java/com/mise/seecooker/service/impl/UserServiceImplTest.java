@@ -1,5 +1,6 @@
 package com.mise.seecooker.service.impl;
 
+import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.secure.BCrypt;
 import cn.dev33.satoken.stp.StpUtil;
 import com.aliyun.oss.common.auth.CredentialsProviderFactory;
@@ -90,6 +91,22 @@ public class UserServiceImplTest {
     }
 
     @Test
+    void getCurrentLoginUserIdTest() {
+        String username = faker.name().username();
+        String password = "12345678abc";
+        Long id = userDao.save(UserPO.builder()
+                .username(username)
+                .password(BCrypt.hashpw(password))
+                .build()).getId();
+        // 未登陆
+        assertThrows(NotLoginException.class, ()->userService.getCurrentLoginUserId());
+        StpUtil.login(id);
+        Long loginId = userService.getCurrentLoginUserId();
+        assertEquals(id, loginId);
+        StpUtil.logout();
+    }
+
+    @Test
     void getCurrentLoginUserTest() {
         String username = faker.name().username();
         String password = "12345678abc";
@@ -102,13 +119,4 @@ public class UserServiceImplTest {
         assertEquals(username, user.getUsername());
         StpUtil.logout();
     }
-
-    @Test
-    void uploadAvatarTest() throws ClientException {
-        // 使用环境变量中获取的RAM用户的访问密钥配置访问凭证。
-        EnvironmentVariableCredentialsProvider credentialsProvider = CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider();
-        System.out.println(credentialsProvider);
-    }
-
-
 }

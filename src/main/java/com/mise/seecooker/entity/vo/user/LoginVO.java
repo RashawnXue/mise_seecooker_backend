@@ -1,4 +1,4 @@
-package com.mise.seecooker.entity.vo;
+package com.mise.seecooker.entity.vo.user;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

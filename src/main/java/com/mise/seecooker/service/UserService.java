@@ -16,7 +16,7 @@ public interface UserService {
      *
      * @param username 用户名
      * @param password 用户密码
-     * @param avatar
+     * @param avatar 用户头像url
      * @return 新增用户id
      */
     Long addUser(String username, String password, String avatar);
@@ -48,6 +48,13 @@ public interface UserService {
      * @return 当前登陆的用户信息
      */
     UserInfoVO getCurrentLoginUser();
+
+    /**
+     * 获取当前登陆的用户id
+     *
+     * @return 当前登陆的用户id
+     */
+    Long getCurrentLoginUserId();
 
     /**
      * 上传头像，返回url
