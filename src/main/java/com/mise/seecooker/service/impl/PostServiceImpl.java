@@ -6,8 +6,11 @@ import com.mise.seecooker.dao.PostDao;
 import com.mise.seecooker.dao.UserDao;
 import com.mise.seecooker.entity.po.PostPO;
 import com.mise.seecooker.entity.po.UserPO;
+import com.mise.seecooker.entity.vo.community.PostDetailVO;
 import com.mise.seecooker.entity.vo.community.PostVO;
 import com.mise.seecooker.enums.ImageType;
+import com.mise.seecooker.exception.BizException;
+import com.mise.seecooker.exception.ErrorType;
 import com.mise.seecooker.service.PostService;
 import com.mise.seecooker.util.AliOSSUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 帖子业务服务层实现类
@@ -86,4 +90,22 @@ public class PostServiceImpl implements PostService {
                 }
         ).toList();
     }
+
+    @Override
+    public PostDetailVO getPostDetail(Long id) {
+        Optional<PostPO> post = postDao.findById(id);
+        if (post.isEmpty()) {
+            throw new BizException(ErrorType.POST_NOT_EXIST);
+        }
+        UserPO poster = userDao.findById(post.get().getPosterId()).get();
+        return PostDetailVO.builder()
+                .title(post.get().getTitle())
+                .content(post.get().getContent())
+                .images(post.get().getImages())
+                .posterName(poster.getUsername())
+                .posterAvatar(poster.getAvatar())
+                .build();
+    }
+
+
 }

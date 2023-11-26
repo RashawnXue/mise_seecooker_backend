@@ -1,5 +1,6 @@
 package com.mise.seecooker.service;
 
+import com.mise.seecooker.entity.vo.community.PostDetailVO;
 import com.mise.seecooker.entity.vo.community.PostVO;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,4 +29,12 @@ public interface PostService {
      * @return 帖子列表
      */
     List<PostVO> getPosts();
+
+    /**
+     * 获取帖子详情
+     *
+     * @param id 帖子id
+     * @return 帖子详情
+     */
+    PostDetailVO getPostDetail(Long id);
 }

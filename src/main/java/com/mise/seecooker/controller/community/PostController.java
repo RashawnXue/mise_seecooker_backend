@@ -2,15 +2,13 @@ package com.mise.seecooker.controller.community;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.mise.seecooker.entity.Result;
+import com.mise.seecooker.entity.vo.community.PostDetailVO;
 import com.mise.seecooker.entity.vo.community.PostVO;
 import com.mise.seecooker.service.PostService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -55,6 +53,18 @@ public class PostController {
         // TODO: 目前为直接获取所有帖子，后续迭代中修改为获取分页推荐10条帖子
         List<PostVO> posts = postService.getPosts();
         return Result.success(posts);
+    }
+
+    /**
+     * 获取帖子详情
+     *
+     * @param id 帖子id
+     * @return 响应结果
+     */
+    @GetMapping("/post/{id}")
+    public Result<PostDetailVO> getPostDetail(@PathVariable @NotNull Long id) {
+        PostDetailVO post = postService.getPostDetail(id);
+        return Result.success(post);
     }
 
 }

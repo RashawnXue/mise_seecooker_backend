@@ -6,6 +6,7 @@ import com.mise.seecooker.dao.PostDao;
 import com.mise.seecooker.dao.UserDao;
 import com.mise.seecooker.entity.po.PostPO;
 import com.mise.seecooker.entity.po.UserPO;
+import com.mise.seecooker.entity.vo.community.PostDetailVO;
 import com.mise.seecooker.entity.vo.community.PostVO;
 import com.mise.seecooker.service.PostService;
 import org.junit.jupiter.api.AfterEach;
@@ -90,5 +91,23 @@ public class PostServiceImplTest {
         List<PostVO> posts = postService.getPosts();
         assertEquals(10, posts.size());
         posts.forEach(postVO -> assertEquals(StpUtil.getLoginIdAsLong(), userDao.findByUsername(postVO.getPosterName()).getId()));
+    }
+
+    @Test
+    void getPostDetailTest() {
+        String title = faker.name().title();
+        String content = faker.address().cityName();
+        PostPO post = postDao.save(PostPO.builder()
+                .title(title)
+                .content(content)
+                .images(List.of(faker.internet().url()))
+                .posterId(StpUtil.getLoginIdAsLong())
+                .createTime(LocalDateTime.now())
+                .updateTime(LocalDateTime.now())
+                .build());
+        PostDetailVO postDetail = postService.getPostDetail(post.getId());
+        assertEquals(postDetail.getTitle(), post.getTitle());
+        assertEquals(postDetail.getContent(), post.getContent());
+        assertEquals(postDetail.getPosterName(), userDao.findById(post.getPosterId()).get().getUsername());
     }
 }
