@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Slf4j
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/v1/")
 public class UserController {
     private final UserService userService;
 
@@ -35,7 +35,7 @@ public class UserController {
      * @param avatar 头像文件
      * @return 响应结果
      */
-    @PostMapping("/user")
+    @PostMapping("user")
     public Result<?> register(@Validated RegisterVO registerVO, MultipartFile avatar) throws Exception {
         String url = userService.uploadAvatar(avatar);
         userService.addUser(registerVO.getUsername(), registerVO.getPassword(), url);
@@ -48,7 +48,7 @@ public class UserController {
      * @param loginVO 登陆数据VO类
      * @return 响应结果
      */
-    @PostMapping("/session")
+    @PostMapping("session")
     public Result<?> login(@Validated @RequestBody LoginVO loginVO) {
         userService.login(loginVO.getUsername(), loginVO.getPassword());
         return Result.success();
@@ -59,7 +59,7 @@ public class UserController {
      *
      * @return 响应结果
      */
-    @DeleteMapping("/session")
+    @DeleteMapping("session")
     public Result<?> logout() {
         userService.logout();
         return Result.success();
@@ -70,7 +70,7 @@ public class UserController {
      *
      * @return 当前登陆的用户信息
      */
-    @GetMapping("/user")
+    @GetMapping("user")
     public Result<UserInfoVO> getCurrentLoginUser() {
         UserInfoVO user = userService.getCurrentLoginUser();
         return Result.success(user);
@@ -82,7 +82,7 @@ public class UserController {
      * @param id 用户id
      * @return 用户信息
      */
-    @GetMapping("/user/{id}")
+    @GetMapping("user/{id}")
     public Result<UserInfoVO> getUserInfoById(@PathVariable Long id) {
         UserInfoVO userInfoVO = userService.getUserById(id);
         return Result.success(userInfoVO);

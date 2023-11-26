@@ -8,6 +8,7 @@ import com.mise.seecooker.dao.UserDao;
 import com.mise.seecooker.entity.po.CommentPO;
 import com.mise.seecooker.entity.po.PostPO;
 import com.mise.seecooker.entity.po.UserPO;
+import com.mise.seecooker.entity.vo.community.CommentVO;
 import com.mise.seecooker.entity.vo.community.PostCommentVO;
 import com.mise.seecooker.entity.vo.community.PostDetailVO;
 import com.mise.seecooker.entity.vo.community.PostVO;
@@ -23,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -82,8 +84,7 @@ public class PostServiceImpl implements PostService {
     public List<PostVO> getPosts() {
         List<PostPO> posts = postDao.findAll();
         posts.sort(Comparator.comparing(PostPO::getCreateTime));
-        return posts.stream().map(
-                postPO -> {
+        return posts.stream().map(postPO -> {
                     UserPO poster = userDao.findById(postPO.getPosterId()).get();
                     return PostVO.builder()
                             .postId(postPO.getId())
@@ -92,8 +93,7 @@ public class PostServiceImpl implements PostService {
                             .posterName(poster.getUsername())
                             .posterAvatar(poster.getAvatar())
                             .build();
-                }
-        ).toList();
+                }).toList();
     }
 
     @Override
@@ -125,5 +125,25 @@ public class PostServiceImpl implements PostService {
         return comment.getId();
     }
 
+    @Override
+    public List<CommentVO> getCommentsByPostId(Long postId) {
+        // 判断帖子是否存在
+        if (!postDao.existsById(postId)) {
+            throw new BizException(ErrorType.POST_NOT_EXIST);
+        }
+        List<CommentPO> commentPOs = commentDao.findAllByPostId(postId);
+        return commentPOs.stream()
+                .sorted(Comparator.comparing(CommentPO::getCreateTime))
+                .map(commentPO -> {
+                    UserPO commenter = userDao.findById(commentPO.getCommenterId()).get();
+                    return CommentVO.builder()
+                            .commenterName(commenter.getUsername())
+                            .commenterAvatar(commenter.getAvatar())
+                            .commentTime(commentPO.getCreateTime().format(DateTimeFormatter.ISO_DATE_TIME))
+                            .content(commentPO.getContent())
+                            .build();
+                })
+                .toList();
+    }
 
 }

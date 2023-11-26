@@ -2,6 +2,7 @@ package com.mise.seecooker.controller.community;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.mise.seecooker.entity.Result;
+import com.mise.seecooker.entity.vo.community.CommentVO;
 import com.mise.seecooker.entity.vo.community.PostCommentVO;
 import com.mise.seecooker.entity.vo.community.PostDetailVO;
 import com.mise.seecooker.entity.vo.community.PostVO;
@@ -23,7 +24,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/v1/")
 public class PostController {
     private final PostService postService;
 
@@ -37,7 +38,7 @@ public class PostController {
      *
      * @return 响应结果
      */
-    @PostMapping("/post")
+    @PostMapping("post")
     public Result<Long> publishPost(@NotNull String title, @NotNull String content, MultipartFile[] images) throws Exception{
         // 未登录不能发布帖子
         StpUtil.checkLogin();
@@ -50,7 +51,7 @@ public class PostController {
      *
      * @return 响应结果
      */
-    @GetMapping("/posts")
+    @GetMapping("posts")
     public Result<List<PostVO>> getPosts() {
         // TODO: 目前为直接获取所有帖子，后续迭代中修改为获取分页推荐10条帖子
         List<PostVO> posts = postService.getPosts();
@@ -63,7 +64,7 @@ public class PostController {
      * @param id 帖子id
      * @return 响应结果
      */
-    @GetMapping("/post/{id}")
+    @GetMapping("post/{id}")
     public Result<PostDetailVO> getPostDetail(@PathVariable @NotNull Long id) {
         PostDetailVO post = postService.getPostDetail(id);
         return Result.success(post);
@@ -75,12 +76,24 @@ public class PostController {
      * @param postComment 评论发表VO
      * @return 响应结果
      */
-    @PostMapping("/comment")
+    @PostMapping("comment")
     public Result<Long> postComment(@RequestBody @Validated PostCommentVO postComment) {
         // 检查是否登陆，未登陆不能发表评论
         StpUtil.checkLogin();
         Long commentId = postService.addComment(postComment);
         return Result.success(commentId);
+    }
+
+    /**
+     * 获取帖子评论
+     *
+     * @param postId 帖子id
+     * @return 响应结果
+     */
+    @GetMapping("comment/{postId}")
+    public Result<List<CommentVO>> getComments(@PathVariable @NotNull Long postId) {
+        List<CommentVO> comments = postService.getCommentsByPostId(postId);
+        return Result.success(comments);
     }
 
 }

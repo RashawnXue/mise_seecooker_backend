@@ -8,6 +8,7 @@ import com.mise.seecooker.dao.UserDao;
 import com.mise.seecooker.entity.po.CommentPO;
 import com.mise.seecooker.entity.po.PostPO;
 import com.mise.seecooker.entity.po.UserPO;
+import com.mise.seecooker.entity.vo.community.CommentVO;
 import com.mise.seecooker.entity.vo.community.PostCommentVO;
 import com.mise.seecooker.entity.vo.community.PostDetailVO;
 import com.mise.seecooker.entity.vo.community.PostVO;
@@ -133,5 +134,31 @@ public class PostServiceImplTest {
         CommentPO comment = commentDao.findById(id).get();
         assertEquals(comment.getCommenterId(), StpUtil.getLoginIdAsLong());
         assertEquals(comment.getPostId(), post.getId());
+    }
+
+    @Test
+    void getCommentsByPostIdTest() {
+        String title = faker.name().title();
+        String postContent = faker.address().cityName();
+        PostPO post = postDao.save(PostPO.builder()
+                .title(title)
+                .content(postContent)
+                .images(List.of(faker.internet().url()))
+                .posterId(StpUtil.getLoginIdAsLong())
+                .createTime(LocalDateTime.now())
+                .updateTime(LocalDateTime.now())
+                .build());
+        UserPO user = userDao.findById(StpUtil.getLoginIdAsLong()).get();
+        for (int i = 0 ; i < 10 ; ++i) {
+            String commentContent = faker.address().cityName();
+            commentDao.save(CommentPO.builder()
+                    .commenterId(StpUtil.getLoginIdAsLong())
+                    .content(commentContent)
+                    .createTime(LocalDateTime.now())
+                    .postId(post.getId())
+                    .build());
+        }
+        List<CommentVO> comments = postService.getCommentsByPostId(post.getId());
+        comments.forEach(commentVO -> assertEquals(user.getUsername(), commentVO.getCommenterName()));
     }
 }

@@ -1,5 +1,6 @@
 package com.mise.seecooker.service;
 
+import com.mise.seecooker.entity.vo.community.CommentVO;
 import com.mise.seecooker.entity.vo.community.PostCommentVO;
 import com.mise.seecooker.entity.vo.community.PostDetailVO;
 import com.mise.seecooker.entity.vo.community.PostVO;
@@ -46,4 +47,12 @@ public interface PostService {
      * @return 新增评论id
      */
     Long addComment(PostCommentVO postComment);
+
+    /**
+     * 根据帖子id获取评论
+     *
+     * @param postId 帖子id
+     * @return 评论列表
+     */
+    List<CommentVO> getCommentsByPostId(Long postId);
 }
