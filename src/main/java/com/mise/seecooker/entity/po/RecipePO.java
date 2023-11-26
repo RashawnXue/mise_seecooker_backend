@@ -42,7 +42,7 @@ public class RecipePO {
      * 菜谱名
      */
     @NotNull
-    @Column(unique = true)
+    @Column(unique = true, length = 20)
     private String name;
 
     /**

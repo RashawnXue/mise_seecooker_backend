@@ -36,25 +36,26 @@ public class PostPO {
     /**
      * 帖子发布者id
      */
-    private Long userId;
+    private Long posterId;
 
     /**
      * 帖子标题
      */
     @NotNull
+    @Column(length = 100)
     private String title;
 
     /**
      * 帖子内容
      */
     @NotNull
+    @Column(length = 3000)
     private String content;
 
     /**
      * 帖子图片
      */
     private List<String> images;
-
 
     /**
      * 数据创建的时间戳

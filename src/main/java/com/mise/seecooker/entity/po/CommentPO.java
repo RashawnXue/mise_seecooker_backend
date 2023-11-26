@@ -1,21 +1,18 @@
 package com.mise.seecooker.entity.po;
 
-import lombok.*;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 
 /**
- * 用户持久层实体类
+ * 评论持久层实体类PO
  *
  * @author xueruichen
- * @date 2023.11.16
+ * @date 2023.11.25
  */
 @Getter
 @Setter
@@ -23,48 +20,33 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "\"user\"")
-public class UserPO {
+@Table(name = "comment")
+public class CommentPO {
     /**
-     * 用户id
+     * 评论id
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
-     * 用户昵称
+     * 评论者id
      */
     @NotNull
-    @Column(unique = true, length = 20)
-    private String username;
+    private Long commenterId;
 
     /**
-     * 用户密码
+     * 帖子id
      */
     @NotNull
-    @Column(length = 60)
-    private String password;
+    private Long postId;
 
     /**
-     * 用户头像url
+     * 评论内容
      */
-    private String avatar;
-
-    /**
-     * 用户收藏的菜谱id列表
-     */
-    private List<Long> likeRecipes;
-
-    /**
-     * 用户发布的菜谱id列表
-     */
-    private List<Long> postRecipes;
-
-    /**
-     * 用户发布的帖子id列表
-     */
-    private List<Long> posts;
+    @NotNull
+    @Column(length = 1000)
+    private String content;
 
     /**
      * 数据创建的时间戳

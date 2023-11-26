@@ -1,9 +1,11 @@
 package com.mise.seecooker.util;
 
+import com.aliyun.oss.HttpMethod;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.common.auth.CredentialsProviderFactory;
 import com.aliyun.oss.common.auth.EnvironmentVariableCredentialsProvider;
+import com.aliyun.oss.model.GeneratePresignedUrlRequest;
 import com.aliyuncs.exceptions.ClientException;
 import com.mise.seecooker.enums.ImageType;
 import com.mise.seecooker.exception.BizException;
@@ -12,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -41,5 +44,21 @@ public class AliOSSUtil {
         String url = ENDPOINT.split("//")[0] + "//" + BUCKET_NAME + "." + ENDPOINT.split("//")[1] + "/" + filename;
         ossClient.shutdown();
         return url;
+    }
+
+    public static String authorizeAccess(String url) throws ClientException {
+        EnvironmentVariableCredentialsProvider credentialsProvider = CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider();
+        OSS ossClient = new OSSClientBuilder().build(ENDPOINT, credentialsProvider);
+        Date expiration = new Date(new Date().getTime() + 360 * 1000L);
+
+        // 生成签名URL。
+        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(BUCKET_NAME, url.substring(url.indexOf('/', BUCKET_NAME.length() + ENDPOINT.length() + 1) + 1), HttpMethod.GET);
+        // 设置过期时间。
+        request.setExpiration(expiration);
+
+        // 通过HTTP GET请求生成签名URL。
+        String signedUrl = String.valueOf(ossClient.generatePresignedUrl(request));
+        ossClient.shutdown();
+        return signedUrl;
     }
 }

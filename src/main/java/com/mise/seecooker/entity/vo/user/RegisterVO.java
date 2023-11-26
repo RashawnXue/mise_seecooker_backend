@@ -1,4 +1,4 @@
-package com.mise.seecooker.entity.vo;
+package com.mise.seecooker.entity.vo.user;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -13,6 +13,7 @@ import lombok.Setter;
  * @date 2023.11.23
  */
 @Getter
+@Setter
 public class RegisterVO {
     /**
      * 用户名
