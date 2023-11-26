@@ -2,12 +2,14 @@ package com.mise.seecooker.controller.community;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.mise.seecooker.entity.Result;
+import com.mise.seecooker.entity.vo.community.PostCommentVO;
 import com.mise.seecooker.entity.vo.community.PostDetailVO;
 import com.mise.seecooker.entity.vo.community.PostVO;
 import com.mise.seecooker.service.PostService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,6 +67,20 @@ public class PostController {
     public Result<PostDetailVO> getPostDetail(@PathVariable @NotNull Long id) {
         PostDetailVO post = postService.getPostDetail(id);
         return Result.success(post);
+    }
+
+    /**
+     * 发表评论
+     *
+     * @param postComment 评论发表VO
+     * @return 响应结果
+     */
+    @PostMapping("/comment")
+    public Result<Long> postComment(@RequestBody @Validated PostCommentVO postComment) {
+        // 检查是否登陆，未登陆不能发表评论
+        StpUtil.checkLogin();
+        Long commentId = postService.addComment(postComment);
+        return Result.success(commentId);
     }
 
 }

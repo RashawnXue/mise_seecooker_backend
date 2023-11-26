@@ -1,5 +1,6 @@
 package com.mise.seecooker.service;
 
+import com.mise.seecooker.entity.vo.community.PostCommentVO;
 import com.mise.seecooker.entity.vo.community.PostDetailVO;
 import com.mise.seecooker.entity.vo.community.PostVO;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,4 +38,12 @@ public interface PostService {
      * @return 帖子详情
      */
     PostDetailVO getPostDetail(Long id);
+
+    /**
+     * 添加评论
+     *
+     * @param postComment 评论相关信息
+     * @return 新增评论id
+     */
+    Long addComment(PostCommentVO postComment);
 }

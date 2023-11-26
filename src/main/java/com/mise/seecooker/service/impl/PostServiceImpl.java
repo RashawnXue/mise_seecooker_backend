@@ -2,10 +2,13 @@ package com.mise.seecooker.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.aliyuncs.exceptions.ClientException;
+import com.mise.seecooker.dao.CommentDao;
 import com.mise.seecooker.dao.PostDao;
 import com.mise.seecooker.dao.UserDao;
+import com.mise.seecooker.entity.po.CommentPO;
 import com.mise.seecooker.entity.po.PostPO;
 import com.mise.seecooker.entity.po.UserPO;
+import com.mise.seecooker.entity.vo.community.PostCommentVO;
 import com.mise.seecooker.entity.vo.community.PostDetailVO;
 import com.mise.seecooker.entity.vo.community.PostVO;
 import com.mise.seecooker.enums.ImageType;
@@ -31,16 +34,18 @@ import java.util.Optional;
  * @author xueruichen
  * @date 2023.11.25
  */
-@Service
 @Slf4j
+@Service
 public class PostServiceImpl implements PostService {
     private final PostDao postDao;
     private final UserDao userDao;
+    private final CommentDao commentDao;
 
     @Autowired
-    public PostServiceImpl(PostDao postDao, UserDao userDao) {
+    public PostServiceImpl(PostDao postDao, UserDao userDao, CommentDao commentDao) {
         this.postDao = postDao;
         this.userDao = userDao;
+        this.commentDao = commentDao;
     }
 
     @Override
@@ -105,6 +110,19 @@ public class PostServiceImpl implements PostService {
                 .posterName(poster.getUsername())
                 .posterAvatar(poster.getAvatar())
                 .build();
+    }
+
+    @Override
+    public Long addComment(PostCommentVO postComment) {
+        CommentPO comment = CommentPO.builder()
+                .postId(postComment.getPostId())
+                .commenterId(StpUtil.getLoginIdAsLong())
+                .content(postComment.getContent())
+                .createTime(LocalDateTime.now())
+                .updateTime(LocalDateTime.now())
+                .build();
+        comment = commentDao.save(comment);
+        return comment.getId();
     }
 
 

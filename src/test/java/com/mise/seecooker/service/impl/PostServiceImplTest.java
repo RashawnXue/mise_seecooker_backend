@@ -2,10 +2,13 @@ package com.mise.seecooker.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.javafaker.Faker;
+import com.mise.seecooker.dao.CommentDao;
 import com.mise.seecooker.dao.PostDao;
 import com.mise.seecooker.dao.UserDao;
+import com.mise.seecooker.entity.po.CommentPO;
 import com.mise.seecooker.entity.po.PostPO;
 import com.mise.seecooker.entity.po.UserPO;
+import com.mise.seecooker.entity.vo.community.PostCommentVO;
 import com.mise.seecooker.entity.vo.community.PostDetailVO;
 import com.mise.seecooker.entity.vo.community.PostVO;
 import com.mise.seecooker.service.PostService;
@@ -35,6 +38,8 @@ public class PostServiceImplTest {
     private PostDao postDao;
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private CommentDao commentDao;
 
     private final Faker faker = new Faker(Locale.CHINA);
 
@@ -109,5 +114,24 @@ public class PostServiceImplTest {
         assertEquals(postDetail.getTitle(), post.getTitle());
         assertEquals(postDetail.getContent(), post.getContent());
         assertEquals(postDetail.getPosterName(), userDao.findById(post.getPosterId()).get().getUsername());
+    }
+
+    @Test
+    void addCommentTest() {
+        String title = faker.name().title();
+        String postContent = faker.address().cityName();
+        PostPO post = postDao.save(PostPO.builder()
+                .title(title)
+                .content(postContent)
+                .images(List.of(faker.internet().url()))
+                .posterId(StpUtil.getLoginIdAsLong())
+                .createTime(LocalDateTime.now())
+                .updateTime(LocalDateTime.now())
+                .build());
+        String commentContent = faker.address().cityName();
+        Long id = postService.addComment(PostCommentVO.builder().postId(post.getId()).content(commentContent).build());
+        CommentPO comment = commentDao.findById(id).get();
+        assertEquals(comment.getCommenterId(), StpUtil.getLoginIdAsLong());
+        assertEquals(comment.getPostId(), post.getId());
     }
 }
