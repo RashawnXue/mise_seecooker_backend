@@ -1,5 +1,7 @@
 package com.mise.seecooker.entity.vo.user;
 
+import com.aliyuncs.exceptions.ClientException;
+import com.mise.seecooker.util.AliOSSUtil;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -21,4 +23,8 @@ public class UserInfoVO {
      * 用户头像url
      */
     private String avatar;
+
+    public String getAvatar() throws ClientException {
+        return AliOSSUtil.authorizeAccess(this.avatar);
+    }
 }

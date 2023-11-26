@@ -90,7 +90,7 @@ public class PostController {
      * @param postId 帖子id
      * @return 响应结果
      */
-    @GetMapping("comment/{postId}")
+    @GetMapping("comments/{postId}")
     public Result<List<CommentVO>> getComments(@PathVariable @NotNull Long postId) {
         List<CommentVO> comments = postService.getCommentsByPostId(postId);
         return Result.success(comments);

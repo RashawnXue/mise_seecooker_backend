@@ -1,8 +1,12 @@
 package com.mise.seecooker.entity.vo.community;
 
+import com.aliyuncs.exceptions.ClientException;
+import com.mise.seecooker.util.AliOSSUtil;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,7 +15,8 @@ import java.util.List;
  * @author xueruichen
  * @date 2023.11.25
  */
-@Data
+@Getter
+@Setter
 @Builder
 public class PostDetailVO {
     /**
@@ -38,4 +43,16 @@ public class PostDetailVO {
      * 帖子图片
      */
     private List<String> images;
+
+    public String getPosterAvatar() throws ClientException {
+        return AliOSSUtil.authorizeAccess(this.posterAvatar);
+    }
+
+    public List<String> getImages() throws ClientException{
+        List<String> signedUrls = new ArrayList<>();
+        for (String image : images) {
+            signedUrls.add(AliOSSUtil.authorizeAccess(image));
+        }
+        return signedUrls;
+    }
 }

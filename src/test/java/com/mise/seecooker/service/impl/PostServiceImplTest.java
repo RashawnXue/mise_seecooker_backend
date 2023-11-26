@@ -46,7 +46,7 @@ public class PostServiceImplTest {
 
     @BeforeEach
     void registerAndLogin() {
-        String username = "testUser";
+        String username = "testUser222";
         String password = "12345678abc";
         Long id = userDao.save(UserPO.builder()
                 .username(username)

@@ -1,7 +1,10 @@
 package com.mise.seecooker.entity.vo.community;
 
+import com.aliyuncs.exceptions.ClientException;
+import com.mise.seecooker.util.AliOSSUtil;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 评论VO类
@@ -9,7 +12,8 @@ import lombok.Data;
  * @author xueruichen
  * @date 2023.11.26
  */
-@Data
+@Getter
+@Setter
 @Builder
 public class CommentVO {
     /**
@@ -31,4 +35,8 @@ public class CommentVO {
      * 评论内容
      */
     private String content;
+
+    public String getCommenterAvatar() throws ClientException {
+        return AliOSSUtil.authorizeAccess(this.commenterAvatar);
+    }
 }

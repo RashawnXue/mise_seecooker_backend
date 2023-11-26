@@ -1,5 +1,7 @@
 package com.mise.seecooker.entity.vo.community;
 
+import com.aliyuncs.exceptions.ClientException;
+import com.mise.seecooker.util.AliOSSUtil;
 import lombok.*;
 
 /**
@@ -8,7 +10,8 @@ import lombok.*;
  * @author xueruichen
  * @date 2023.11.25
  */
-@Data
+@Getter
+@Setter
 @Builder
 public class PostVO {
     /**
@@ -35,4 +38,12 @@ public class PostVO {
      * 发布者用户名
      */
     private String posterName;
+
+    public String getCover() throws ClientException {
+        return AliOSSUtil.authorizeAccess(this.cover);
+    }
+
+    public String getPosterAvatar() throws ClientException {
+        return AliOSSUtil.authorizeAccess(this.posterAvatar);
+    }
 }

@@ -139,7 +139,7 @@ public class PostServiceImpl implements PostService {
                     return CommentVO.builder()
                             .commenterName(commenter.getUsername())
                             .commenterAvatar(commenter.getAvatar())
-                            .commentTime(commentPO.getCreateTime().format(DateTimeFormatter.ISO_DATE_TIME))
+                            .commentTime(commentPO.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                             .content(commentPO.getContent())
                             .build();
                 })

@@ -3,8 +3,6 @@ package com.mise.seecooker.service.impl;
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.secure.BCrypt;
 import cn.dev33.satoken.stp.StpUtil;
-import com.aliyun.oss.common.auth.CredentialsProviderFactory;
-import com.aliyun.oss.common.auth.EnvironmentVariableCredentialsProvider;
 import com.aliyuncs.exceptions.ClientException;
 import com.github.javafaker.Faker;
 import com.mise.seecooker.dao.UserDao;
@@ -74,18 +72,16 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void getUserByIdTest() {
+    void getUserByIdTest() throws ClientException {
         String username = faker.name().username();
         String password = "12345678abc";
-        String avatar = faker.avatar().image();
         Long id = userDao.save(UserPO.builder()
                 .username(username)
                 .password(BCrypt.hashpw(password))
-                .avatar(avatar)
+                .avatar(null)
                 .build()).getId();
         UserInfoVO user = userService.getUserById(id);
         assertEquals(username, user.getUsername());
-        assertEquals(avatar, user.getAvatar());
         // 用户id不存在，抛出异常
         assertThrows(BizException.class, ()->userService.getUserById(id+1));
     }
