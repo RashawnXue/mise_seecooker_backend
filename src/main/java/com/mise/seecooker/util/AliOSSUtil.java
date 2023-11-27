@@ -31,7 +31,7 @@ public class AliOSSUtil {
     private static final String ENDPOINT = "https://oss-cn-shanghai.aliyuncs.com";
     private AliOSSUtil() {}
     public static String uploadFile(MultipartFile file, ImageType imageType) throws IOException, ClientException {
-        EnvironmentVariableCredentialsProvider credentialsProvider = CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider();;
+        EnvironmentVariableCredentialsProvider credentialsProvider = CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider();
         OSS ossClient = new OSSClientBuilder().build(ENDPOINT, credentialsProvider.getCredentials().getAccessKeyId(), credentialsProvider.getCredentials().getSecretAccessKey());
 
         String url = uploadFile(file, imageType, ossClient);
@@ -64,9 +64,7 @@ public class AliOSSUtil {
         // 上传文件
         ossClient.putObject(BUCKET_NAME, filename, inputStream);
 
-        String url = ENDPOINT.split("//")[0] + "//" + BUCKET_NAME + "." + ENDPOINT.split("//")[1] + "/" + filename;
-        ossClient.shutdown();
-        return url;
+        return ENDPOINT.split("//")[0] + "//" + BUCKET_NAME + "." + ENDPOINT.split("//")[1] + "/" + filename;
     }
 
     public static String authorizeAccess(String url) throws ClientException {

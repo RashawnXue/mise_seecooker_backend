@@ -42,8 +42,9 @@ public enum ErrorType {
 
     FILE_SIGNED_ERROR(300002, "File signed error", 400), /* 文件签名错误 */
 
-    POST_NOT_EXIST(400001, "Post not exist", 400); /* 帖子不存在 */
+    POST_NOT_EXIST(400001, "Post not exist", 400), /* 帖子不存在 */
 
+    RECIPE_STEP_MATCH_ERROR(500001, "Recipe step match error", 400); /*菜谱步骤图和步骤文字不匹配*/
     /**
      * 状态码
      */

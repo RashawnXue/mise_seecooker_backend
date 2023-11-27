@@ -25,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +42,6 @@ public class PostServiceImpl implements PostService {
     private final UserDao userDao;
     private final CommentDao commentDao;
 
-    @Autowired
     public PostServiceImpl(PostDao postDao, UserDao userDao, CommentDao commentDao) {
         this.postDao = postDao;
         this.userDao = userDao;

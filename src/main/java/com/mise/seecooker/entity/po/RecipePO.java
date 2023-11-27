@@ -34,9 +34,9 @@ public class RecipePO {
     private Long id;
 
     /**
-     * 发布者id
+     * 作者id
      */
-    private Long userId;
+    private Long authorId;
 
     /**
      * 菜谱名

@@ -27,12 +27,11 @@ import java.util.Optional;
  * @author xueruichen
  * @date 2023.11.17
  */
-@Service
 @Slf4j
+@Service
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
 
-    @Autowired
     public UserServiceImpl(UserDao userDao) {
         this.userDao = userDao;
     }
