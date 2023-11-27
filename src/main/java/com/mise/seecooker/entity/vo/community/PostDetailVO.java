@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,10 +48,6 @@ public class PostDetailVO {
     }
 
     public List<String> getImages() throws ClientException{
-        List<String> signedUrls = new ArrayList<>();
-        for (String image : images) {
-            signedUrls.add(AliOSSUtil.authorizeAccess(image));
-        }
-        return signedUrls;
+        return AliOSSUtil.authorizeAccess(this.images);
     }
 }

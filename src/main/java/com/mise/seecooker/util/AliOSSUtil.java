@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -55,10 +56,27 @@ public class AliOSSUtil {
         GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(BUCKET_NAME, url.substring(url.indexOf('/', BUCKET_NAME.length() + ENDPOINT.length() + 1) + 1), HttpMethod.GET);
         // 设置过期时间。
         request.setExpiration(expiration);
-
         // 通过HTTP GET请求生成签名URL。
         String signedUrl = String.valueOf(ossClient.generatePresignedUrl(request));
         ossClient.shutdown();
         return signedUrl;
+    }
+
+    public static List<String> authorizeAccess(List<String> urls) throws ClientException {
+        EnvironmentVariableCredentialsProvider credentialsProvider = CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider();
+        OSS ossClient = new OSSClientBuilder().build(ENDPOINT, credentialsProvider);
+        Date expiration = new Date(new Date().getTime() + 360 * 1000L);
+
+        // 生成签名URL。
+        List<String> signedUrls = urls.stream().map(url->{
+            GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(BUCKET_NAME, url.substring(url.indexOf('/', BUCKET_NAME.length() + ENDPOINT.length() + 1) + 1), HttpMethod.GET);
+            // 设置过期时间。
+            request.setExpiration(expiration);
+            // 通过HTTP GET请求生成签名URL。
+            return String.valueOf(ossClient.generatePresignedUrl(request));
+        }).toList();
+
+        ossClient.shutdown();
+        return signedUrls;
     }
 }
