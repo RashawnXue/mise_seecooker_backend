@@ -54,12 +54,7 @@ public class PostServiceImpl implements PostService {
     public Long addPost(String title, String content, MultipartFile[] images) throws IOException, ClientException {
         List<String> postImages = null;
         if (images != null) {
-            postImages = new ArrayList<>();
-            // 上传图片
-            for (MultipartFile image : images) {
-                String s = AliOSSUtil.uploadFile(image, ImageType.POST_IMAGE);
-                postImages.add(s);
-            }
+            postImages = AliOSSUtil.uploadFile(images, ImageType.POST_IMAGE);
         }
         Long posterId = StpUtil.getLoginIdAsLong();
         PostPO post = PostPO.builder()
