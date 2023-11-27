@@ -1,7 +1,6 @@
 package com.mise.seecooker.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.aliyuncs.exceptions.ClientException;
 import com.github.javafaker.Faker;
 import com.mise.seecooker.dao.CommentDao;
 import com.mise.seecooker.dao.PostDao;

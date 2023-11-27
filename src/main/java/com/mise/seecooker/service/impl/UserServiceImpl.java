@@ -11,7 +11,6 @@ import com.mise.seecooker.exception.BizException;
 import com.mise.seecooker.exception.ErrorType;
 import com.mise.seecooker.service.UserService;
 import com.mise.seecooker.util.AliOSSUtil;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

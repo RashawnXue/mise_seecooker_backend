@@ -3,7 +3,6 @@ package com.mise.seecooker.service.impl;
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.secure.BCrypt;
 import cn.dev33.satoken.stp.StpUtil;
-import com.aliyuncs.exceptions.ClientException;
 import com.github.javafaker.Faker;
 import com.mise.seecooker.dao.UserDao;
 import com.mise.seecooker.entity.po.UserPO;

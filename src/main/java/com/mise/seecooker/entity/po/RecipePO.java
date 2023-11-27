@@ -51,6 +51,12 @@ public class RecipePO {
     private String cover;
 
     /**
+     * 菜谱介绍
+     */
+    @Column(length = 500)
+    private String introduction;
+
+    /**
      * 步骤图
      */
     @NotNull
@@ -60,6 +66,7 @@ public class RecipePO {
      * 步骤内容
      */
     @NotNull
+    @Column(length = 500)
     private List<String> stepContents;
 
 
