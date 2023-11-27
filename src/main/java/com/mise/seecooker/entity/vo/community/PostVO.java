@@ -38,12 +38,4 @@ public class PostVO {
      * 发布者用户名
      */
     private String posterName;
-
-    public String getCover() throws ClientException {
-        return AliOSSUtil.authorizeAccess(this.cover);
-    }
-
-    public String getPosterAvatar() throws ClientException {
-        return AliOSSUtil.authorizeAccess(this.posterAvatar);
-    }
 }

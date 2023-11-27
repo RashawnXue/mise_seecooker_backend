@@ -23,8 +23,4 @@ public class UserInfoVO {
      * 用户头像url
      */
     private String avatar;
-
-    public String getAvatar() throws ClientException {
-        return AliOSSUtil.authorizeAccess(this.avatar);
-    }
 }

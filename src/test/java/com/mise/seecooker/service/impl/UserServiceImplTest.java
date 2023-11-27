@@ -72,7 +72,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void getUserByIdTest() throws ClientException {
+    void getUserByIdTest() {
         String username = faker.name().username();
         String password = "12345678abc";
         Long id = userDao.save(UserPO.builder()

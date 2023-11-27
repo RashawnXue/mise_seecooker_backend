@@ -1,5 +1,6 @@
 package com.mise.seecooker.controller.user;
 
+import com.aliyuncs.exceptions.ClientException;
 import com.mise.seecooker.entity.Result;
 import com.mise.seecooker.entity.vo.user.LoginVO;
 import com.mise.seecooker.entity.vo.user.RegisterVO;
@@ -71,7 +72,7 @@ public class UserController {
      * @return 当前登陆的用户信息
      */
     @GetMapping("user")
-    public Result<UserInfoVO> getCurrentLoginUser() {
+    public Result<UserInfoVO> getCurrentLoginUser() throws ClientException {
         UserInfoVO user = userService.getCurrentLoginUser();
         return Result.success(user);
     }
@@ -83,7 +84,7 @@ public class UserController {
      * @return 用户信息
      */
     @GetMapping("user/{id}")
-    public Result<UserInfoVO> getUserInfoById(@PathVariable Long id) {
+    public Result<UserInfoVO> getUserInfoById(@PathVariable Long id) throws ClientException {
         UserInfoVO userInfoVO = userService.getUserById(id);
         return Result.success(userInfoVO);
     }

@@ -85,15 +85,15 @@ public class PostServiceImpl implements PostService {
         List<PostPO> posts = postDao.findAll();
         posts.sort(Comparator.comparing(PostPO::getCreateTime));
         return posts.stream().map(postPO -> {
-                    UserPO poster = userDao.findById(postPO.getPosterId()).get();
-                    return PostVO.builder()
-                            .postId(postPO.getId())
-                            .title(postPO.getTitle())
-                            .cover(postPO.getImages().isEmpty() ? null : postPO.getImages().get(0))
-                            .posterName(poster.getUsername())
-                            .posterAvatar(poster.getAvatar())
-                            .build();
-                }).toList();
+            UserPO poster = userDao.findById(postPO.getPosterId()).get();
+            return PostVO.builder()
+                    .postId(postPO.getId())
+                    .title(postPO.getTitle())
+                    .cover(postPO.getImages().isEmpty() ? null : postPO.getImages().get(0))
+                    .posterName(poster.getUsername())
+                    .posterAvatar(poster.getAvatar())
+                    .build();
+        }).toList();
     }
 
     @Override

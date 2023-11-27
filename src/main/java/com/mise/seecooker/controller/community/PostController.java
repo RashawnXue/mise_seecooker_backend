@@ -1,6 +1,7 @@
 package com.mise.seecooker.controller.community;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.aliyuncs.exceptions.ClientException;
 import com.mise.seecooker.entity.Result;
 import com.mise.seecooker.entity.vo.community.CommentVO;
 import com.mise.seecooker.entity.vo.community.PostCommentVO;
@@ -52,7 +53,7 @@ public class PostController {
      * @return 响应结果
      */
     @GetMapping("posts")
-    public Result<List<PostVO>> getPosts() {
+    public Result<List<PostVO>> getPosts() throws ClientException {
         // TODO: 目前为直接获取所有帖子，后续迭代中修改为获取分页推荐10条帖子
         List<PostVO> posts = postService.getPosts();
         return Result.success(posts);
@@ -65,7 +66,7 @@ public class PostController {
      * @return 响应结果
      */
     @GetMapping("post/{id}")
-    public Result<PostDetailVO> getPostDetail(@PathVariable @NotNull Long id) {
+    public Result<PostDetailVO> getPostDetail(@PathVariable @NotNull Long id) throws ClientException {
         PostDetailVO post = postService.getPostDetail(id);
         return Result.success(post);
     }

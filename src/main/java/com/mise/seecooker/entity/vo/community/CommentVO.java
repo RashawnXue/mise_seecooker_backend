@@ -35,8 +35,4 @@ public class CommentVO {
      * 评论内容
      */
     private String content;
-
-    public String getCommenterAvatar() throws ClientException {
-        return AliOSSUtil.authorizeAccess(this.commenterAvatar);
-    }
 }

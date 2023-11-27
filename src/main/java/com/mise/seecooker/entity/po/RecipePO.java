@@ -74,5 +74,4 @@ public class RecipePO {
      */
     @UpdateTimestamp
     private LocalDateTime updateTime;
-
 }

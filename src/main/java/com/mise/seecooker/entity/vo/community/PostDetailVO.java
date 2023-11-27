@@ -42,12 +42,4 @@ public class PostDetailVO {
      * 帖子图片
      */
     private List<String> images;
-
-    public String getPosterAvatar() throws ClientException {
-        return AliOSSUtil.authorizeAccess(this.posterAvatar);
-    }
-
-    public List<String> getImages() throws ClientException{
-        return AliOSSUtil.authorizeAccess(this.images);
-    }
 }
