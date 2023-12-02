@@ -122,6 +122,10 @@ public class RecipeServiceImplTest {
         recipes = recipeService.getRecipesByNameLike("大鹅");
         assertEquals(1, recipes.size());
         assertEquals("铁锅炖大鹅", recipes.get(0).getName());
+        // 模糊匹配
+        recipes = recipeService.getRecipesByNameLike("铁鹅");
+        assertEquals(1, recipes.size());
+        assertEquals("铁锅炖大鹅", recipes.get(0).getName());
     }
 
 }
