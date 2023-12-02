@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +32,9 @@ public class AliOSSUtil {
     private static final String ENDPOINT = "https://oss-cn-shanghai.aliyuncs.com";
     private AliOSSUtil() {}
     public static String uploadFile(MultipartFile file, ImageType imageType) throws IOException, ClientException {
+        if (file == null) {
+            return null;
+        }
         EnvironmentVariableCredentialsProvider credentialsProvider = CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider();
         OSS ossClient = new OSSClientBuilder().build(ENDPOINT, credentialsProvider.getCredentials().getAccessKeyId(), credentialsProvider.getCredentials().getSecretAccessKey());
 
@@ -41,6 +45,9 @@ public class AliOSSUtil {
     }
 
     public static List<String> uploadFile(MultipartFile[] files, ImageType imageType) throws IOException, ClientException {
+        if (files == null) {
+            return Collections.emptyList();
+        }
         EnvironmentVariableCredentialsProvider credentialsProvider = CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider();
         OSS ossClient = new OSSClientBuilder().build(ENDPOINT, credentialsProvider.getCredentials().getAccessKeyId(), credentialsProvider.getCredentials().getSecretAccessKey());
         List<String> urls = new ArrayList<>();

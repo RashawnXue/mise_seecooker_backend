@@ -1,13 +1,13 @@
 package com.mise.seecooker.controller.user;
 
-import com.aliyuncs.exceptions.ClientException;
+import cn.dev33.satoken.stp.SaTokenInfo;
+import cn.dev33.satoken.stp.StpUtil;
 import com.mise.seecooker.entity.Result;
 import com.mise.seecooker.entity.vo.user.LoginVO;
 import com.mise.seecooker.entity.vo.user.RegisterVO;
 import com.mise.seecooker.entity.vo.user.UserInfoVO;
 import com.mise.seecooker.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,9 +49,10 @@ public class UserController {
      * @return 响应结果
      */
     @PostMapping("session")
-    public Result<?> login(@Validated @RequestBody LoginVO loginVO) {
+    public Result<SaTokenInfo> login(@Validated @RequestBody LoginVO loginVO) {
         userService.login(loginVO.getUsername(), loginVO.getPassword());
-        return Result.success();
+        SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
+        return Result.success(tokenInfo);
     }
 
     /**
@@ -71,7 +72,7 @@ public class UserController {
      * @return 当前登陆的用户信息
      */
     @GetMapping("user")
-    public Result<UserInfoVO> getCurrentLoginUser() throws ClientException {
+    public Result<UserInfoVO> getCurrentLoginUser() {
         UserInfoVO user = userService.getCurrentLoginUser();
         return Result.success(user);
     }
@@ -83,7 +84,7 @@ public class UserController {
      * @return 用户信息
      */
     @GetMapping("user/{id}")
-    public Result<UserInfoVO> getUserInfoById(@PathVariable Long id) throws ClientException {
+    public Result<UserInfoVO> getUserInfoById(@PathVariable Long id) {
         UserInfoVO userInfoVO = userService.getUserById(id);
         return Result.success(userInfoVO);
     }

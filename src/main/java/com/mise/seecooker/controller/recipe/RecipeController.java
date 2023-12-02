@@ -42,7 +42,7 @@ public class RecipeController {
      * @return 响应结果
      */
     @PostMapping("recipe")
-    public Result<Long> publicRecipe(PublishRecipeVO publishRecipe, MultipartFile cover, MultipartFile[] stepImages) throws IOException, ClientException {
+    public Result<Long> publishRecipe(PublishRecipeVO publishRecipe, MultipartFile cover, MultipartFile[] stepImages) throws IOException, ClientException {
         // 未登陆不能发布菜谱
         StpUtil.checkLogin();
         // 检查图片数量是否与步骤数量相等

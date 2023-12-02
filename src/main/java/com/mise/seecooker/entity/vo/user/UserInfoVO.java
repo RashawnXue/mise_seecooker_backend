@@ -23,4 +23,14 @@ public class UserInfoVO {
      * 用户头像url
      */
     private String avatar;
+
+    /**
+     * 发布帖子数
+     */
+    private Integer postNum;
+
+    /**
+     * 获赞数
+     */
+    private Integer getLikedNum;
 }

@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -78,6 +80,7 @@ public class UserServiceImplTest {
                 .username(username)
                 .password(BCrypt.hashpw(password))
                 .avatar(null)
+                .posts(Collections.emptyList())
                 .build()).getId();
         UserInfoVO user = userService.getUserById(id);
         assertEquals(username, user.getUsername());
@@ -91,6 +94,7 @@ public class UserServiceImplTest {
         String password = "12345678abc";
         Long id = userDao.save(UserPO.builder()
                 .username(username)
+                .posts(Collections.emptyList())
                 .password(BCrypt.hashpw(password))
                 .build()).getId();
         // 未登陆
@@ -107,6 +111,7 @@ public class UserServiceImplTest {
         String password = "12345678abc";
         Long id = userDao.save(UserPO.builder()
                 .username(username)
+                .posts(Collections.emptyList())
                 .password(BCrypt.hashpw(password))
                 .build()).getId();
         StpUtil.login(id);

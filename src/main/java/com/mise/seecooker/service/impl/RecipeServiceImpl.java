@@ -92,7 +92,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public List<RecipeVO> getRecipesByNameLike(String query) {
-        List<RecipePO> recipes = recipeDao.findByNameLike(query);
+        List<RecipePO> recipes = recipeDao.findByNameLike("%" + query + "%");
         return recipes.stream().sorted(Comparator.comparing(RecipePO::getCreateTime))
                 .map(recipePO -> RecipeVO.builder()
                         .cover(recipePO.getCover())

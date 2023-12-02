@@ -12,7 +12,6 @@ import com.mise.seecooker.exception.ErrorType;
 import com.mise.seecooker.service.UserService;
 import com.mise.seecooker.util.AliOSSUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -107,6 +106,9 @@ public class UserServiceImpl implements UserService {
         return UserInfoVO.builder()
                 .username(user.get().getUsername())
                 .avatar(user.get().getAvatar())
+                .postNum(user.get().getPosts().size())
+                // TODO: 添加获赞数
+                .getLikedNum(0)
                 .build();
     }
 

@@ -1,8 +1,8 @@
 package com.mise.seecooker.entity.vo.community;
 
-import com.aliyuncs.exceptions.ClientException;
-import com.mise.seecooker.util.AliOSSUtil;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 帖子预览VO类
