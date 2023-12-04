@@ -45,6 +45,9 @@ public class RecipeController {
     public Result<Long> publishRecipe(PublishRecipeVO publishRecipe, MultipartFile cover, MultipartFile[] stepImages) throws IOException, ClientException {
         // 未登陆不能发布菜谱
         StpUtil.checkLogin();
+        if (stepImages == null) {
+            throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "步骤图不能为空");
+        }
         // 检查图片数量是否与步骤数量相等
         if (publishRecipe.getStepContents().size() != stepImages.length) {
             throw new BizException(ErrorType.RECIPE_STEP_MATCH_ERROR);

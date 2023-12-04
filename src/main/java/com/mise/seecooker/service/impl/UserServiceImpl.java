@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
                         .avatar(avatar)
                         .posts(List.of())
                         .postRecipes(List.of())
-                        .likeRecipes(List.of())
+                        .favoriteRecipes(List.of())
                         .createTime(LocalDateTime.now())
                         .updateTime(LocalDateTime.now())
                         .build());
