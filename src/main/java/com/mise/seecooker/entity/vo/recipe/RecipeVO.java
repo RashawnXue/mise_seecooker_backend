@@ -28,4 +28,14 @@ public class RecipeVO {
      * 菜谱封面url
      */
     private String cover;
+
+    /**
+     * 作者名
+     */
+    private String authorName;
+
+    /**
+     * 作者头像
+     */
+    private String authorAvatar;
 }

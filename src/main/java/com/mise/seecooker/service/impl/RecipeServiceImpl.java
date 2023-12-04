@@ -62,13 +62,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public List<RecipeVO> getRecipes() {
         List<RecipePO> recipes = recipeDao.findAll();
-        return recipes.stream().sorted(Comparator.comparing(RecipePO::getCreateTime))
-                .map(recipePO -> RecipeVO.builder()
-                        .cover(recipePO.getCover())
-                        .id(recipePO.getId())
-                        .name(recipePO.getName())
-                        .build())
-                .toList();
+        return mapRecipes(recipes);
     }
 
     @Override
@@ -93,12 +87,21 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public List<RecipeVO> getRecipesByNameLike(String query) {
         List<RecipePO> recipes = recipeDao.findByNameLike("%" + String.join("%", query.split("")) + "%");
+        return mapRecipes(recipes);
+    }
+
+    private List<RecipeVO> mapRecipes(List<RecipePO> recipes) {
         return recipes.stream().sorted(Comparator.comparing(RecipePO::getCreateTime))
-                .map(recipePO -> RecipeVO.builder()
-                        .cover(recipePO.getCover())
-                        .id(recipePO.getId())
-                        .name(recipePO.getName())
-                        .build())
+                .map(recipePO -> {
+                    UserPO author = userDao.findById(recipePO.getAuthorId()).get();
+                    return RecipeVO.builder()
+                            .cover(recipePO.getCover())
+                            .id(recipePO.getId())
+                            .name(recipePO.getName())
+                            .authorAvatar(author.getAvatar())
+                            .authorName(author.getUsername())
+                            .build();
+                })
                 .toList();
     }
 }
