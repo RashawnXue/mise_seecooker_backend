@@ -30,10 +30,4 @@ public class IngredientPO {
      */
     @NotNull
     private String name;
-
-    /**
-     * 配料数量
-     */
-    @NotNull
-    private String amount;
 }
