@@ -1,5 +1,6 @@
 package com.mise.seecooker.service;
 
+import com.aliyuncs.exceptions.ClientException;
 import com.mise.seecooker.entity.vo.user.UserInfoVO;
 import org.springframework.web.multipart.MultipartFile;
 

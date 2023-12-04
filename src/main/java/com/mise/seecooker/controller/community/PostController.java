@@ -1,6 +1,7 @@
 package com.mise.seecooker.controller.community;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.aliyuncs.exceptions.ClientException;
 import com.mise.seecooker.entity.Result;
 import com.mise.seecooker.entity.vo.community.CommentVO;
 import com.mise.seecooker.entity.vo.community.PostCommentVO;
@@ -9,7 +10,6 @@ import com.mise.seecooker.entity.vo.community.PostVO;
 import com.mise.seecooker.service.PostService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +28,6 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
 
-    @Autowired
     public PostController(PostService postService) {
         this.postService = postService;
     }
@@ -52,7 +51,7 @@ public class PostController {
      * @return 响应结果
      */
     @GetMapping("posts")
-    public Result<List<PostVO>> getPosts() {
+    public Result<List<PostVO>> getPosts() throws ClientException {
         // TODO: 目前为直接获取所有帖子，后续迭代中修改为获取分页推荐10条帖子
         List<PostVO> posts = postService.getPosts();
         return Result.success(posts);
@@ -65,7 +64,7 @@ public class PostController {
      * @return 响应结果
      */
     @GetMapping("post/{id}")
-    public Result<PostDetailVO> getPostDetail(@PathVariable @NotNull Long id) {
+    public Result<PostDetailVO> getPostDetail(@PathVariable @NotNull Long id) throws ClientException {
         PostDetailVO post = postService.getPostDetail(id);
         return Result.success(post);
     }

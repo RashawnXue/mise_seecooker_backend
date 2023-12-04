@@ -8,7 +8,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -54,7 +53,7 @@ public class UserPO {
     /**
      * 用户收藏的菜谱id列表
      */
-    private List<Long> likeRecipes;
+    private List<Long> favoriteRecipes;
 
     /**
      * 用户发布的菜谱id列表

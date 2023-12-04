@@ -24,7 +24,13 @@ public class UserInfoVO {
      */
     private String avatar;
 
-    public String getAvatar() throws ClientException {
-        return AliOSSUtil.authorizeAccess(this.avatar);
-    }
+    /**
+     * 发布帖子数
+     */
+    private Integer postNum;
+
+    /**
+     * 获赞数
+     */
+    private Integer getLikedNum;
 }

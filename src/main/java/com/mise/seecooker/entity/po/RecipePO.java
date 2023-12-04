@@ -34,21 +34,27 @@ public class RecipePO {
     private Long id;
 
     /**
-     * 发布者id
+     * 作者id
      */
-    private Long userId;
+    private Long authorId;
 
     /**
      * 菜谱名
      */
     @NotNull
-    @Column(unique = true, length = 20)
+    @Column(length = 20)
     private String name;
 
     /**
      * 菜谱封面
      */
     private String cover;
+
+    /**
+     * 菜谱介绍
+     */
+    @Column(length = 500)
+    private String introduction;
 
     /**
      * 步骤图
@@ -60,6 +66,7 @@ public class RecipePO {
      * 步骤内容
      */
     @NotNull
+    @Column(length = 500)
     private List<String> stepContents;
 
 
@@ -74,5 +81,4 @@ public class RecipePO {
      */
     @UpdateTimestamp
     private LocalDateTime updateTime;
-
 }

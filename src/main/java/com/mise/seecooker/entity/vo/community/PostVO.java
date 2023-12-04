@@ -1,8 +1,8 @@
 package com.mise.seecooker.entity.vo.community;
 
-import com.aliyuncs.exceptions.ClientException;
-import com.mise.seecooker.util.AliOSSUtil;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 帖子预览VO类
@@ -38,12 +38,4 @@ public class PostVO {
      * 发布者用户名
      */
     private String posterName;
-
-    public String getCover() throws ClientException {
-        return AliOSSUtil.authorizeAccess(this.cover);
-    }
-
-    public String getPosterAvatar() throws ClientException {
-        return AliOSSUtil.authorizeAccess(this.posterAvatar);
-    }
 }

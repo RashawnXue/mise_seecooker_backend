@@ -25,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +42,6 @@ public class PostServiceImpl implements PostService {
     private final UserDao userDao;
     private final CommentDao commentDao;
 
-    @Autowired
     public PostServiceImpl(PostDao postDao, UserDao userDao, CommentDao commentDao) {
         this.postDao = postDao;
         this.userDao = userDao;
@@ -54,12 +52,7 @@ public class PostServiceImpl implements PostService {
     public Long addPost(String title, String content, MultipartFile[] images) throws IOException, ClientException {
         List<String> postImages = null;
         if (images != null) {
-            postImages = new ArrayList<>();
-            // 上传图片
-            for (MultipartFile image : images) {
-                String s = AliOSSUtil.uploadFile(image, ImageType.POST_IMAGE);
-                postImages.add(s);
-            }
+            postImages = AliOSSUtil.uploadFile(images, ImageType.POST_IMAGE);
         }
         Long posterId = StpUtil.getLoginIdAsLong();
         PostPO post = PostPO.builder()
@@ -85,15 +78,15 @@ public class PostServiceImpl implements PostService {
         List<PostPO> posts = postDao.findAll();
         posts.sort(Comparator.comparing(PostPO::getCreateTime));
         return posts.stream().map(postPO -> {
-                    UserPO poster = userDao.findById(postPO.getPosterId()).get();
-                    return PostVO.builder()
-                            .postId(postPO.getId())
-                            .title(postPO.getTitle())
-                            .cover(postPO.getImages().isEmpty() ? null : postPO.getImages().get(0))
-                            .posterName(poster.getUsername())
-                            .posterAvatar(poster.getAvatar())
-                            .build();
-                }).toList();
+            UserPO poster = userDao.findById(postPO.getPosterId()).get();
+            return PostVO.builder()
+                    .postId(postPO.getId())
+                    .title(postPO.getTitle())
+                    .cover(postPO.getImages().isEmpty() ? null : postPO.getImages().get(0))
+                    .posterName(poster.getUsername())
+                    .posterAvatar(poster.getAvatar())
+                    .build();
+        }).toList();
     }
 
     @Override

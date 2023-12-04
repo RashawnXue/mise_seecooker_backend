@@ -1,12 +1,13 @@
 package com.mise.seecooker.controller.user;
 
+import cn.dev33.satoken.stp.SaTokenInfo;
+import cn.dev33.satoken.stp.StpUtil;
 import com.mise.seecooker.entity.Result;
 import com.mise.seecooker.entity.vo.user.LoginVO;
 import com.mise.seecooker.entity.vo.user.RegisterVO;
 import com.mise.seecooker.entity.vo.user.UserInfoVO;
 import com.mise.seecooker.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
     private final UserService userService;
 
-    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -49,9 +49,10 @@ public class UserController {
      * @return 响应结果
      */
     @PostMapping("session")
-    public Result<?> login(@Validated @RequestBody LoginVO loginVO) {
+    public Result<SaTokenInfo> login(@Validated @RequestBody LoginVO loginVO) {
         userService.login(loginVO.getUsername(), loginVO.getPassword());
-        return Result.success();
+        SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
+        return Result.success(tokenInfo);
     }
 
     /**

@@ -3,7 +3,6 @@ package com.mise.seecooker.service.impl;
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.secure.BCrypt;
 import cn.dev33.satoken.stp.StpUtil;
-import com.aliyuncs.exceptions.ClientException;
 import com.github.javafaker.Faker;
 import com.mise.seecooker.dao.UserDao;
 import com.mise.seecooker.entity.po.UserPO;
@@ -15,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,13 +73,14 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void getUserByIdTest() throws ClientException {
+    void getUserByIdTest() {
         String username = faker.name().username();
         String password = "12345678abc";
         Long id = userDao.save(UserPO.builder()
                 .username(username)
                 .password(BCrypt.hashpw(password))
                 .avatar(null)
+                .posts(Collections.emptyList())
                 .build()).getId();
         UserInfoVO user = userService.getUserById(id);
         assertEquals(username, user.getUsername());
@@ -92,6 +94,7 @@ public class UserServiceImplTest {
         String password = "12345678abc";
         Long id = userDao.save(UserPO.builder()
                 .username(username)
+                .posts(Collections.emptyList())
                 .password(BCrypt.hashpw(password))
                 .build()).getId();
         // 未登陆
@@ -108,6 +111,7 @@ public class UserServiceImplTest {
         String password = "12345678abc";
         Long id = userDao.save(UserPO.builder()
                 .username(username)
+                .posts(Collections.emptyList())
                 .password(BCrypt.hashpw(password))
                 .build()).getId();
         StpUtil.login(id);

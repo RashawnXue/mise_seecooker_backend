@@ -11,9 +11,7 @@ import com.mise.seecooker.exception.BizException;
 import com.mise.seecooker.exception.ErrorType;
 import com.mise.seecooker.service.UserService;
 import com.mise.seecooker.util.AliOSSUtil;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,12 +26,11 @@ import java.util.Optional;
  * @author xueruichen
  * @date 2023.11.17
  */
-@Service
 @Slf4j
+@Service
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
 
-    @Autowired
     public UserServiceImpl(UserDao userDao) {
         this.userDao = userDao;
     }
@@ -52,7 +49,7 @@ public class UserServiceImpl implements UserService {
                         .avatar(avatar)
                         .posts(List.of())
                         .postRecipes(List.of())
-                        .likeRecipes(List.of())
+                        .favoriteRecipes(List.of())
                         .createTime(LocalDateTime.now())
                         .updateTime(LocalDateTime.now())
                         .build());
@@ -109,6 +106,9 @@ public class UserServiceImpl implements UserService {
         return UserInfoVO.builder()
                 .username(user.get().getUsername())
                 .avatar(user.get().getAvatar())
+                .postNum(user.get().getPosts().size())
+                // TODO: 添加获赞数
+                .getLikedNum(0)
                 .build();
     }
 
