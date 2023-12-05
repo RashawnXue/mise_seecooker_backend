@@ -64,4 +64,19 @@ public interface UserService {
      * @return 上传成功返回url，失败返回null
      */
     String uploadAvatar(MultipartFile avatar) throws Exception;
+
+    /**
+     * 修改用户名
+     *
+     * @param username 原用户名
+     * @param newUsername 新用户名
+     */
+    void modifyUsername(String username,String newUsername);
+    /**
+     * 修改密码
+     * @param username 用户名
+     * @param password 新密码
+     * @param newPassword 新密码
+     */
+    void modifyPassword(String username,String password,String newPassword);
 }
