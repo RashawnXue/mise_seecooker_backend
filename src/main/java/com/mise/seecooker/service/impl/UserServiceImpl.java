@@ -143,16 +143,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public void modifyPassword(String username,String password,String newPassword){
         UserPO user = userDao.findByUsername(username);
-        // 用户名不存在
+        // 用户名不存在，抛出异常
         if (user == null) {
             log.error("The username does not exist");
             throw new BizException(ErrorType.USER_NOT_EXIST);
         }
-        // 密码错误
+        // 密码错误，抛出异常
         if (!BCrypt.checkpw(password, user.getPassword())) {
             throw new BizException(ErrorType.PASSWORD_ERROR);
         }
         user.setPassword(BCrypt.hashpw(newPassword));
+        userDao.save(user);
+    }
+    @Override
+    public void modifyAvatar(String username,String avatar){
+        UserPO user = userDao.findByUsername(username);
+        // 用户名不存在，抛出异常
+        if (user == null) {
+            log.error("The username does not exist");
+            throw new BizException(ErrorType.USER_NOT_EXIST);
+        }
+        user.setAvatar(avatar);
         userDao.save(user);
     }
 }

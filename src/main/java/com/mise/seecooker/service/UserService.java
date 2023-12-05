@@ -79,4 +79,11 @@ public interface UserService {
      * @param newPassword 新密码
      */
     void modifyPassword(String username,String password,String newPassword);
+
+    /**
+     * 修改头像
+     * @param username 用户名
+     * @param url 头像url
+     */
+    void modifyAvatar(String username,String url);
 }
