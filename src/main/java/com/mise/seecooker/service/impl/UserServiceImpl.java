@@ -163,6 +163,7 @@ public class UserServiceImpl implements UserService {
             log.error("The username does not exist");
             throw new BizException(ErrorType.USER_NOT_EXIST);
         }
+        if(avatar==null||avatar.isEmpty())avatar=null;
         user.setAvatar(avatar);
         userDao.save(user);
     }
