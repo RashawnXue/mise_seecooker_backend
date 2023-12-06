@@ -117,4 +117,54 @@ public class UserServiceImpl implements UserService {
         StpUtil.checkLogin();
         return StpUtil.getLoginIdAsLong();
     }
+    @Override
+    public void modifyUsername(String username,String newUsername){
+        // 检查空值
+        if(username==null|| username.isEmpty()){
+            throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "用户名不能为空");
+        }
+        if(newUsername==null||newUsername.isEmpty()){
+            throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "新用户名不能为空");
+        }
+        // 检查相同值
+        if(username.equals(newUsername)){
+            throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "新用户名不能与原用户名相同");
+        }
+        UserPO user = userDao.findByUsername(username);
+        // 用户名不存在
+        if (user == null) {
+            log.error("The username does not exist");
+            throw new BizException(ErrorType.USER_NOT_EXIST);
+        }
+
+        user.setUsername(newUsername);
+        userDao.save(user);
+    }
+    @Override
+    public void modifyPassword(String username,String password,String newPassword){
+        UserPO user = userDao.findByUsername(username);
+        // 用户名不存在，抛出异常
+        if (user == null) {
+            log.error("The username does not exist");
+            throw new BizException(ErrorType.USER_NOT_EXIST);
+        }
+        // 密码错误，抛出异常
+        if (!BCrypt.checkpw(password, user.getPassword())) {
+            throw new BizException(ErrorType.PASSWORD_ERROR);
+        }
+        user.setPassword(BCrypt.hashpw(newPassword));
+        userDao.save(user);
+    }
+    @Override
+    public void modifyAvatar(String username,String avatar){
+        UserPO user = userDao.findByUsername(username);
+        // 用户名不存在，抛出异常
+        if (user == null) {
+            log.error("The username does not exist");
+            throw new BizException(ErrorType.USER_NOT_EXIST);
+        }
+        if(avatar==null||avatar.isEmpty())avatar=null;
+        user.setAvatar(avatar);
+        userDao.save(user);
+    }
 }
