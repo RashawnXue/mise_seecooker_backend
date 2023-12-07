@@ -18,8 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * 用户服务单元测试
@@ -118,5 +117,74 @@ public class UserServiceImplTest {
         UserInfoVO user = userService.getCurrentLoginUser();
         assertEquals(username, user.getUsername());
         StpUtil.logout();
+    }
+    @Test
+    void modifyUsernameTest() {
+        String username = faker.name().username();
+        String password = "12345678abc";
+        Long id = userDao.save(UserPO.builder()
+                .username(username)
+                .posts(Collections.emptyList())
+                .password(BCrypt.hashpw(password))
+                .build()).getId();
+        StpUtil.login(id);
+        String newUsername = faker.name().username();
+        //用户名或新用户名为空
+        assertThrows(BizException.class, ()->userService.modifyUsername(username, ""));
+        assertThrows(BizException.class, ()->userService.modifyUsername(null, newUsername));
+        //用户名不存在
+        assertThrows(BizException.class, ()->userService.modifyUsername("not_exist", newUsername));
+        userService.modifyUsername(username, newUsername);
+        assertEquals(newUsername, userDao.findById(id).get().getUsername());
+        StpUtil.logout();
+    }
+    @Test
+    void modifyPasswordTest(){
+        String username = faker.name().username();
+        String password = "12345678abc";
+        String hashedPassword = BCrypt.hashpw(password);
+        Long id = userDao.save(UserPO.builder()
+                .username(username)
+                .posts(Collections.emptyList())
+                .password(hashedPassword)
+                .build()).getId();
+        String newPassword = "87654321cba";
+        //原密码错误
+        assertThrows(BizException.class, ()->userService.modifyPassword(username, "1", newPassword));
+        //用户名不存在
+        assertThrows(BizException.class, ()->userService.modifyPassword("not_exist", password, password));
+        userService.modifyPassword(username, password, newPassword);
+        assertTrue(BCrypt.checkpw(newPassword, userDao.findById(id).get().getPassword()));
+    }
+    @Test
+    void modifyAvatarTest(){
+        String username = faker.name().username();
+        String password = "12345678abc";
+        String avatar = faker.avatar().image();
+        Long id = userDao.save(UserPO.builder()
+                .username(username)
+                .posts(Collections.emptyList())
+                .password(BCrypt.hashpw(password))
+                .avatar(avatar)
+                .build()).getId();
+        String newAvatar = faker.avatar().image();
+        userService.modifyAvatar(username, newAvatar);
+        //用户名不存在
+        assertThrows(BizException.class, ()->userService.modifyAvatar("not_exist", newAvatar));
+        assertEquals(newAvatar, userDao.findById(id).get().getAvatar());
+    }
+    @Test
+    void modifyAvatarTestNull(){
+        String username = faker.name().username();
+        String password = "12345678abc";
+        String avatar = faker.avatar().image();
+        Long id = userDao.save(UserPO.builder()
+                .username(username)
+                .posts(Collections.emptyList())
+                .password(BCrypt.hashpw(password))
+                .avatar(avatar)
+                .build()).getId();
+        userService.modifyAvatar(username, null);
+        assertNull(userDao.findById(id).get().getAvatar());
     }
 }

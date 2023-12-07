@@ -89,4 +89,37 @@ public class UserController {
         return Result.success(userInfoVO);
     }
 
+    /**
+     * 根据用户名修改用户名
+     * 要求用户已登录
+     * @param username 原用户名
+     * @param newname  新用户名
+     * @return 响应结果
+     */
+    @PostMapping("/modify/username")
+    public Result<?> modifyUsername(String username,String newname) {
+        StpUtil.checkLogin();
+        userService.modifyUsername(username,newname);
+        return Result.success();
+    }
+
+    /**
+     * 根据用户名修改密码
+     * @param username 用户名
+     * @param password 原密码
+     * @param newPassword 新密码
+     * @return 响应结果
+     */
+    @PostMapping("/modify/password")
+    public Result<?> modifyPassword(String username,String password,String newPassword){
+        userService.modifyPassword(username,password,newPassword);
+        return Result.success();
+    }
+    @PostMapping("/modify/avatar")
+    public Result<?> modifyAvatar(String username,MultipartFile avatar)throws Exception{
+        StpUtil.checkLogin();
+        String url = userService.uploadAvatar(avatar);
+        userService.modifyAvatar(username,url);
+        return Result.success();
+    }
 }
