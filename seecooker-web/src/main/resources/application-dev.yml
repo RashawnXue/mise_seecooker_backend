@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/seecooker?useUnicode=true&characterEncoding=utf8&currentSchema=public&stringtype=unspecified
+    username: postgres
+    password: 123456
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    database: postgresql
+server:
+  port: 8080
