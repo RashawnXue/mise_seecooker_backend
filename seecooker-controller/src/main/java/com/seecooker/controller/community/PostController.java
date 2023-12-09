@@ -6,7 +6,7 @@ import com.seecooker.pojo.vo.community.CommentVO;
 import com.seecooker.pojo.vo.community.PostCommentVO;
 import com.seecooker.pojo.vo.community.PostDetailVO;
 import com.seecooker.pojo.vo.community.PostVO;
-import com.seecooker.common.Result;
+import com.seecooker.common.core.Result;
 import com.seecooker.service.PostService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;

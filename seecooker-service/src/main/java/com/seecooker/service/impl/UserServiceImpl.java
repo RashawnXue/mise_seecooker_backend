@@ -6,9 +6,9 @@ import com.aliyuncs.exceptions.ClientException;
 
 import com.seecooker.pojo.po.UserPO;
 import com.seecooker.pojo.vo.user.UserInfoVO;
-import com.seecooker.common.enums.ImageType;
-import com.seecooker.common.exception.BizException;
-import com.seecooker.common.exception.ErrorType;
+import com.seecooker.common.core.enums.ImageType;
+import com.seecooker.common.core.exception.BizException;
+import com.seecooker.common.core.exception.ErrorType;
 import com.seecooker.dao.UserDao;
 import com.seecooker.oss.util.AliOSSUtil;
 import com.seecooker.service.UserService;

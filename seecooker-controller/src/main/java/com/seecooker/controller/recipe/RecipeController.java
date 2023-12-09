@@ -6,9 +6,9 @@ import com.seecooker.pojo.vo.recipe.PublishRecipeVO;
 import com.seecooker.pojo.vo.recipe.RecipeDetailVO;
 import com.seecooker.pojo.vo.recipe.RecipeVO;
 
-import com.seecooker.common.Result;
-import com.seecooker.common.exception.BizException;
-import com.seecooker.common.exception.ErrorType;
+import com.seecooker.common.core.Result;
+import com.seecooker.common.core.exception.BizException;
+import com.seecooker.common.core.exception.ErrorType;
 import com.seecooker.service.RecipeService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;

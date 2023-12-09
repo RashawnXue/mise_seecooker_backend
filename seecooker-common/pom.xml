@@ -11,29 +11,16 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>seecooker-common</name>
     <description>seecooker-common</description>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <properties>
         <java.version>17</java.version>
     </properties>
+
+    <modules>
+        <module>seecooker-common-core</module>
+        <module>seecooker-common-redis</module>
+    </modules>
+
     <dependencies>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.15.3</version>
-        </dependency>
-        <dependency>
-            <groupId>cn.dev33</groupId>
-            <artifactId>sa-token-core</artifactId>
-            <version>1.37.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
     </dependencies>
 </project>
