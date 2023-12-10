@@ -11,6 +11,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>seecooker-common-redis</name>
     <description>seecooker-common-redis</description>
+    <packaging>jar</packaging>
     <properties>
         <java.version>17</java.version>
     </properties>
