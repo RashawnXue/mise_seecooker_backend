@@ -55,4 +55,12 @@ public interface PostService {
      * @return 评论列表
      */
     List<CommentVO> getCommentsByPostId(Long postId);
+
+    /**
+     * 点赞或取消点赞帖子
+     *
+     * @param postId 帖子id
+     * @return 帖子状态
+     */
+    Boolean likePost(Long postId);
 }

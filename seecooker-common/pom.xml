@@ -37,10 +37,5 @@
     </dependencyManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>com.seecooker</groupId>
-            <artifactId>seecooker-common-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 </project>

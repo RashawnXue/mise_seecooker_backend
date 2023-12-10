@@ -28,6 +28,11 @@
             <groupId>com.seecooker</groupId>
             <artifactId>seecooker-oss</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.seecooker</groupId>
+            <artifactId>seecooker-common-redis</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
         <dependency>
             <groupId>cn.dev33</groupId>

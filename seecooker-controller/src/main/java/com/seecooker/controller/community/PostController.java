@@ -95,4 +95,18 @@ public class PostController {
         return Result.success(comments);
     }
 
+    /**
+     * 点赞或取消点赞帖子
+     * 若未点赞，则点赞帖子；反之则取消点赞帖子
+     *
+     * @param postId 点赞的帖子id
+     * @return 响应结果-交互后的点赞状态
+     */
+    @PutMapping("post/like/{postId}")
+    public Result<Boolean> likePost(@PathVariable @NotNull Long postId) {
+        // 检查是否登陆，未登陆不能点赞
+        StpUtil.checkLogin();
+        Boolean result = postService.likePost(postId);
+        return Result.success(result);
+    }
 }

@@ -56,6 +56,11 @@ public class PostPO {
     private List<String> images;
 
     /**
+     * 点赞用户id列表
+     */
+    private List<Long> likeUserIdList;
+
+    /**
      * 数据创建的时间戳
      */
     @CreationTimestamp
@@ -66,5 +71,4 @@ public class PostPO {
      */
     @UpdateTimestamp
     private LocalDateTime updateTime;
-
 }
