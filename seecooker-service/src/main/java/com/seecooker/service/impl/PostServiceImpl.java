@@ -177,8 +177,15 @@ public class PostServiceImpl implements PostService {
         // 在redis中的hash进行记录，结构：hashKey--POST_LIKE::postId, key--userId, value--boolean
         String key = RedisKey.POST_LIKE.getKey() + "::" + postId;
         String hashKey = Long.toString(userId);
-        // 获取对应记录
+        // 获取对应记录, value表示当前用户是否已经点赞
         Boolean value = (Boolean) redisTemplate.opsForHash().get(key, hashKey);
+
+        // 无记录，读取数据库
+        if (value == null) {
+            PostPO post = postDao.findById(postId).get();
+            value = post.getLikeUserIdList().contains(userId);
+        }
+
         if (Boolean.TRUE.equals(value)) {
             // 已点赞，删除记录
             redisTemplate.opsForHash().put(key, hashKey, Boolean.FALSE);

@@ -41,12 +41,12 @@ public class ScheduledServiceImpl implements ScheduledService {
     @Scheduled(cron = "0 0/5 * * * *")
     public void scheduledUpdatePostLike() {
         log.info("Update post like information in database");
-        String hashKey = RedisKey.POST_LIKE.getKey();
-        Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
-        entries.forEach((key, value) -> {
+        String key = RedisKey.POST_LIKE.getKey();
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
+        entries.forEach((hashKey, value) -> {
             // 从redis中解析帖子和用户id
-            Long postId = Long.parseLong(((String)key).split("::")[0]);
-            Long userId = Long.parseLong(((String)key).split("::")[1]);
+            Long postId = Long.parseLong(((String)hashKey).split("::")[0]);
+            Long userId = Long.parseLong(((String)hashKey).split("::")[1]);
             boolean res = Boolean.TRUE.toString().equals(value);
             // 从数据库中获取持久化对象
             Optional<PostPO> postOptional = postDao.findById(postId);
@@ -72,6 +72,8 @@ public class ScheduledServiceImpl implements ScheduledService {
             post.setLikeUserIdList(likeList);
             post.setUpdateTime(LocalDateTime.now());
             postDao.save(post);
+            // 持久化完成后删除缓存
+            redisTemplate.opsForHash().delete(key, hashKey);
         });
     }
 }
