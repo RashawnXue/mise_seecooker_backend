@@ -11,7 +11,7 @@ build-job:       # This job runs in the build stage, which runs first.
     - echo "Compile complete."
   artifacts:
     untracked: true
-  allow_failure: true
+  allow_failure: false
 
 deploy-job:      # This job runs in the deployment stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
