@@ -23,10 +23,12 @@ deploy-job:      # This job runs in the deployment stage.
     - sshpass -p "$DEPLOYER_PASSWORD" ssh -o StrictHostKeyChecking=no root@$DEPLOYER_IP "docker build -f Dockerfile -t seecooker:0.0.1 .;
       echo "build image succeed";
       docker stop seecooker_deploy;
+      echo "stop container succeed";
       docker rm seecooker_deploy;
+      echo "delete container succeed";
       docker run --name seecooker_deploy
       -itd -p 8080:8080
       -e OSS_ACCESS_KEY ID=$OSS_ACCESS_KEY_ID
-      -e OSS_ACCESS_KEY_SECRET=$OSS_ACCESS_KEY_SECRET
-      seecooker:0.0.1"
+      -e OSS_ACCESS_KEY_SECRET=$OSS_ACCESS_KEY_SECRET seecooker:0.0.1"
+      echo "deploy container succeed";
     - echo "Application successfully deployed."\
