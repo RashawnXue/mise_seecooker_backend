@@ -28,7 +28,7 @@ deploy-job:      # This job runs in the deployment stage.
       echo "delete container succeed";
       docker run --name seecooker_deploy
       -itd -p 8080:8080
-      -e OSS_ACCESS_KEY ID=$OSS_ACCESS_KEY_ID
-      -e OSS_ACCESS_KEY_SECRET=$OSS_ACCESS_KEY_SECRET seecooker:0.0.1"
-      echo "deploy container succeed";
+      -e OSS_ACCESS_KEY_ID=$OSS_ACCESS_KEY_ID
+      -e OSS_ACCESS_KEY_SECRET=$OSS_ACCESS_KEY_SECRET seecooker:0.0.1;
+      echo "deploy container succeed";"
     - echo "Application successfully deployed."\
