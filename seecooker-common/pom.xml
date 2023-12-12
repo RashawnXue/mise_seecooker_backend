@@ -5,10 +5,10 @@
     <parent>
         <groupId>com.seecooker</groupId>
         <artifactId>seecooker</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.1</version>
     </parent>
     <artifactId>seecooker-common</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>seecooker-common</name>
     <description>seecooker-common</description>
     <packaging>pom</packaging>
@@ -23,12 +23,12 @@
             <dependency>
                 <groupId>com.seecooker</groupId>
                 <artifactId>seecooker-common-core</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.1</version>
             </dependency>
             <dependency>
                 <groupId>com.seecooker</groupId>
                 <artifactId>seecooker-common-redis</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

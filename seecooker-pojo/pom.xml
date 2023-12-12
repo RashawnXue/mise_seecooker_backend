@@ -5,10 +5,10 @@
     <parent>
         <groupId>com.seecooker</groupId>
         <artifactId>seecooker</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.1</version>
     </parent>
     <artifactId>seecooker-pojo</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>seecooker-pojo</name>
     <description>seecooker-pojo</description>
     <packaging>jar</packaging>

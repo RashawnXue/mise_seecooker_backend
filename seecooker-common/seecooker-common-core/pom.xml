@@ -5,10 +5,10 @@
     <parent>
         <groupId>com.seecooker</groupId>
         <artifactId>seecooker-common</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.1</version>
     </parent>
     <artifactId>seecooker-common-core</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>seecooker-common-core</name>
     <description>seecooker-common-core</description>
     <packaging>jar</packaging>
