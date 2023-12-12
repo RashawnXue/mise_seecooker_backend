@@ -19,8 +19,8 @@ deploy-job:      # This job runs in the deployment stage.
   script:
     - echo "Deploying application..."
     - sshpass -p "$SERVER_PASSWD" scp -o StrictHostKeyChecking=no seecooker-web/target/seecooker-web-test-0.0.1-SNAPSHOT.jar root@$SERVER_IP:~
-    - sshpass -p "$SERVER_PASSWD" scp -o StrictHostKeyChecking=no Dockerfile_deploy root@$SERVER_IP:~
-    - docker build -f Dockerfile_deploy -t seecooker:0.0.1 .;
+    - sshpass -p "$SERVER_PASSWD" scp -o StrictHostKeyChecking=no Dockerfile root@$SERVER_IP:~
+    - docker build -f Dockerfile -t seecooker:0.0.1 .;
     - docker stop seecooker_deploy;
     - docker rm seecooker_deploy;
     - docker run --name seecooker_deploy \
