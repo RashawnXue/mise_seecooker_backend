@@ -12,9 +12,6 @@
     <name>seecooker-common</name>
     <description>seecooker-common</description>
     <packaging>pom</packaging>
-    <properties>
-        <java.version>17</java.version>
-    </properties>
 
     <modules>
         <module>seecooker-common-core</module>
@@ -35,7 +32,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <dependencies>
-    </dependencies>
 </project>

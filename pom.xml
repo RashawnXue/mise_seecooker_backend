@@ -15,9 +15,6 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>seecooker</name>
     <description>seecooker_backend</description>
-    <properties>
-        <java.version>17</java.version>
-    </properties>
 
     <modules>
         <module>seecooker-common</module>
