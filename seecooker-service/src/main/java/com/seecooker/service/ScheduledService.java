@@ -7,5 +7,8 @@ package com.seecooker.service;
  * @date 2023.12.10
  */
 public interface ScheduledService {
+    /**
+     * 定时更新帖子点赞信息
+     */
     void scheduledUpdatePostLike();
 }

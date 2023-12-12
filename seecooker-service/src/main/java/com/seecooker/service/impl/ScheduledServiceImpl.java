@@ -9,10 +9,11 @@ import com.seecooker.pojo.po.PostPO;
 import com.seecooker.pojo.po.UserPO;
 import com.seecooker.service.ScheduledService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,9 +29,9 @@ import java.util.Optional;
 public class ScheduledServiceImpl implements ScheduledService {
     private final PostDao postDao;
     private final UserDao userDao;
-    private final StringRedisTemplate redisTemplate;
+    private final RedisTemplate redisTemplate;
 
-    public ScheduledServiceImpl(PostDao postDao, UserDao userDao, StringRedisTemplate redisTemplate) {
+    public ScheduledServiceImpl(PostDao postDao, UserDao userDao, RedisTemplate redisTemplate) {
         this.postDao = postDao;
         this.userDao = userDao;
         this.redisTemplate = redisTemplate;
@@ -69,6 +70,7 @@ public class ScheduledServiceImpl implements ScheduledService {
                 likeList.remove(userId);
             }
             post.setLikeUserIdList(likeList);
+            post.setUpdateTime(LocalDateTime.now());
             postDao.save(post);
         });
     }

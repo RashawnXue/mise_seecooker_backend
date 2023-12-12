@@ -64,7 +64,7 @@ public class PostController {
      * @return 响应结果
      */
     @GetMapping("post/{id}")
-    public Result<PostDetailVO> getPostDetail(@PathVariable @NotNull Long id) throws ClientException {
+    public Result<PostDetailVO> getPostDetail(@PathVariable @NotNull Long id) {
         PostDetailVO post = postService.getPostDetail(id);
         return Result.success(post);
     }

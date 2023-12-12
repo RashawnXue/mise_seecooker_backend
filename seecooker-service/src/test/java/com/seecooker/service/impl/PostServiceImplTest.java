@@ -13,20 +13,21 @@ import com.seecooker.pojo.vo.community.PostCommentVO;
 import com.seecooker.pojo.vo.community.PostDetailVO;
 import com.seecooker.pojo.vo.community.PostVO;
 import com.seecooker.service.PostService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -46,7 +47,10 @@ public class PostServiceImplTest {
     private UserDao userDao;
     @Autowired
     private CommentDao commentDao;
+    @Autowired
+    private RedisTemplate redisTemplate;
     private final Faker faker = new Faker(Locale.CHINA);
+
     @BeforeEach
     void registerAndLogin() {
         String username = "testUser222";
@@ -57,6 +61,7 @@ public class PostServiceImplTest {
                 .posts(List.of())
                 .build()).getId();
         StpUtil.login(id);
+        clearRedis();
     }
 
     @AfterEach
@@ -64,6 +69,7 @@ public class PostServiceImplTest {
         postDao.deleteAll();
         StpUtil.logout();
         userDao.deleteAll();
+        clearRedis();
     }
 
     @Test
@@ -111,6 +117,7 @@ public class PostServiceImplTest {
                 .content(content)
                 .images(List.of(faker.internet().url()))
                 .posterId(StpUtil.getLoginIdAsLong())
+                .likeUserIdList(Collections.emptyList())
                 .createTime(LocalDateTime.now())
                 .updateTime(LocalDateTime.now())
                 .build());
@@ -163,5 +170,31 @@ public class PostServiceImplTest {
         }
         List<CommentVO> comments = postService.getCommentsByPostId(post.getId());
         comments.forEach(commentVO -> assertEquals(user.getUsername(), commentVO.getCommenterName()));
+    }
+
+    @Test
+    void likePostTest() {
+        String title = faker.name().title();
+        String content = faker.address().cityName();
+        PostPO post = postDao.save(PostPO.builder()
+                .title(title)
+                .content(content)
+                .images(List.of(faker.internet().url()))
+                .posterId(StpUtil.getLoginIdAsLong())
+                .likeUserIdList(Collections.emptyList())
+                .createTime(LocalDateTime.now())
+                .updateTime(LocalDateTime.now())
+                .build());
+        assertEquals(Boolean.TRUE, postService.likePost(post.getId()));
+        assertEquals(1, postService.getPostDetail(post.getId()).getLikeNum());
+        assertEquals(Boolean.FALSE, postService.likePost(post.getId()));
+        assertEquals(0, postService.getPostDetail(post.getId()).getLikeNum());
+    }
+
+    private void clearRedis() {
+        Set<String> keys = redisTemplate.keys("*");
+        for (String key : keys) {
+            redisTemplate.delete(key);
+        }
     }
 }

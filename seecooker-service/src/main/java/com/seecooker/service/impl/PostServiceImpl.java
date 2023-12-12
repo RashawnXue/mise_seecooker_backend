@@ -19,7 +19,8 @@ import com.seecooker.pojo.vo.community.PostDetailVO;
 import com.seecooker.pojo.vo.community.PostVO;
 import com.seecooker.service.PostService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,9 +44,9 @@ public class PostServiceImpl implements PostService {
     private final PostDao postDao;
     private final UserDao userDao;
     private final CommentDao commentDao;
-    private final StringRedisTemplate redisTemplate;
+    private final RedisTemplate redisTemplate;
 
-    public PostServiceImpl(PostDao postDao, UserDao userDao, CommentDao commentDao, StringRedisTemplate redisTemplate) {
+    public PostServiceImpl(PostDao postDao, UserDao userDao, CommentDao commentDao, RedisTemplate redisTemplate) {
         this.postDao = postDao;
         this.userDao = userDao;
         this.commentDao = commentDao;
@@ -54,10 +55,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Long addPost(String title, String content, MultipartFile[] images) throws IOException, ClientException {
-        List<String> postImages = null;
-        if (images != null) {
-            postImages = AliOSSUtil.uploadFile(images, ImageType.POST_IMAGE);
-        }
+        List<String> postImages = AliOSSUtil.uploadFile(images, ImageType.POST_IMAGE);
         Long posterId = StpUtil.getLoginIdAsLong();
         PostPO post = PostPO.builder()
                 .title(title)
@@ -106,17 +104,22 @@ public class PostServiceImpl implements PostService {
         boolean isLogin = StpUtil.isLogin();
         boolean like = false;
 
+        List<Long> likeUsersId = post.get().getLikeUserIdList();
+        Long likeNum = (long) likeUsersId.size();
+
+        Long userId = StpUtil.getLoginIdAsLong();
+        String key = RedisKey.POST_LIKE.getKey() + "::" + post.get().getId();
+        String hashKey = userId.toString();
+        Boolean hashResult = (Boolean) redisTemplate.opsForHash().get(key, hashKey);
+
+        likeNum += redisTemplate.opsForHash().entries(key).values().stream().filter(v->(Boolean)v).count();
+        // 是否已点赞
         if (isLogin) {
-            Long userId = StpUtil.getLoginIdAsLong();
-            List<Long> likeUsersId = post.get().getLikeUserIdList();
-            String key = String.join(RedisKey.POST_LIKE_DELIMITER.getKey(), Long.toString(id), userId.toString());
-            String hashKey = RedisKey.POST_LIKE.getKey();
-            String hashResult = (String) redisTemplate.opsForHash().get(hashKey, key);
-            if (Boolean.FALSE.toString().equals(hashResult)) {
+            if (Boolean.FALSE.equals(hashResult)) {
                 // 若缓存中为false，则为false
                 like = false;
             }
-            else if (Boolean.TRUE.toString().equals(hashResult) || likeUsersId.contains(userId)) {
+            else if (likeUsersId.contains(userId)) {
                 // 若缓存中或数据库中有点赞，则为true
                 like = true;
                 redisTemplate.opsForHash().put(hashKey, key, Boolean.TRUE);
@@ -130,7 +133,7 @@ public class PostServiceImpl implements PostService {
                 .posterName(poster.getUsername())
                 .posterAvatar(poster.getAvatar())
                 .like(like) // 未登陆默认为false
-                .likeNum(post.get().getLikeUserIdList().size())
+                .likeNum(likeNum)
                 .build();
     }
 
@@ -171,20 +174,19 @@ public class PostServiceImpl implements PostService {
     @Override
     public Boolean likePost(Long postId) {
         long userId = StpUtil.getLoginIdAsLong();
-        // 在redis中的hash进行记录，结构：key--postId::userId, value--boolean
-        String hashKey = RedisKey.POST_LIKE.getKey();
-        String key = String.join(RedisKey.POST_LIKE_DELIMITER.getKey(), Long.toString(postId), Long.toString(userId));
+        // 在redis中的hash进行记录，结构：hashKey--POST_LIKE::postId, key--userId, value--boolean
+        String key = RedisKey.POST_LIKE.getKey() + "::" + postId;
+        String hashKey = Long.toString(userId);
         // 获取对应记录
-        Boolean value = redisTemplate.opsForHash().hasKey(hashKey, key);
+        Boolean value = (Boolean) redisTemplate.opsForHash().get(key, hashKey);
         if (Boolean.TRUE.equals(value)) {
             // 已点赞，删除记录
-            redisTemplate.opsForHash().put(hashKey, key, Boolean.FALSE.toString());
+            redisTemplate.opsForHash().put(key, hashKey, Boolean.FALSE);
         } else {
             // 未点赞，添加记录
-            redisTemplate.opsForHash().put(hashKey, key, Boolean.TRUE.toString());
+            redisTemplate.opsForHash().put(key, hashKey, Boolean.TRUE);
         }
 
         return Boolean.FALSE.equals(value);
     }
-
 }

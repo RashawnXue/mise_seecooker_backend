@@ -49,5 +49,5 @@ public class PostDetailVO {
     /**
      * 点赞数
      */
-    private Integer likeNum;
+    private Long likeNum;
 }
