@@ -107,14 +107,15 @@ public class PostServiceImpl implements PostService {
         List<Long> likeUsersId = post.get().getLikeUserIdList();
         Long likeNum = (long) likeUsersId.size();
 
-        Long userId = StpUtil.getLoginIdAsLong();
         String key = RedisKey.POST_LIKE.getKey() + "::" + post.get().getId();
-        String hashKey = userId.toString();
-        Boolean hashResult = (Boolean) redisTemplate.opsForHash().get(key, hashKey);
-
         likeNum += redisTemplate.opsForHash().entries(key).values().stream().filter(v->(Boolean)v).count();
+
         // 是否已点赞
         if (isLogin) {
+            Long userId = StpUtil.getLoginIdAsLong();
+            String hashKey = userId.toString();
+            Boolean hashResult = (Boolean) redisTemplate.opsForHash().get(key, hashKey);
+
             if (Boolean.FALSE.equals(hashResult)) {
                 // 若缓存中为false，则为false
                 like = false;
