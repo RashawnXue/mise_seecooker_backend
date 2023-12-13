@@ -6,7 +6,7 @@ import com.seecooker.pojo.vo.community.CommentVO;
 import com.seecooker.pojo.vo.community.PostCommentVO;
 import com.seecooker.pojo.vo.community.PostDetailVO;
 import com.seecooker.pojo.vo.community.PostVO;
-import com.seecooker.common.Result;
+import com.seecooker.common.core.Result;
 import com.seecooker.service.PostService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -64,7 +64,7 @@ public class PostController {
      * @return 响应结果
      */
     @GetMapping("post/{id}")
-    public Result<PostDetailVO> getPostDetail(@PathVariable @NotNull Long id) throws ClientException {
+    public Result<PostDetailVO> getPostDetail(@PathVariable @NotNull Long id) {
         PostDetailVO post = postService.getPostDetail(id);
         return Result.success(post);
     }
@@ -95,4 +95,18 @@ public class PostController {
         return Result.success(comments);
     }
 
+    /**
+     * 点赞或取消点赞帖子
+     * 若未点赞，则点赞帖子；反之则取消点赞帖子
+     *
+     * @param postId 点赞的帖子id
+     * @return 响应结果-交互后的点赞状态
+     */
+    @PutMapping("post/like/{postId}")
+    public Result<Boolean> likePost(@PathVariable @NotNull Long postId) {
+        // 检查是否登陆，未登陆不能点赞
+        StpUtil.checkLogin();
+        Boolean result = postService.likePost(postId);
+        return Result.success(result);
+    }
 }

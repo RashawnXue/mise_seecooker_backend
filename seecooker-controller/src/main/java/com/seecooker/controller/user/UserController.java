@@ -5,7 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.seecooker.pojo.vo.user.LoginVO;
 import com.seecooker.pojo.vo.user.RegisterVO;
 import com.seecooker.pojo.vo.user.UserInfoVO;
-import com.seecooker.common.Result;
+import com.seecooker.common.core.Result;
 import com.seecooker.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;

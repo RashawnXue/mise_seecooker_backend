@@ -2,28 +2,32 @@ package com.seecooker.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.aliyuncs.exceptions.ClientException;
+import com.seecooker.common.core.enums.ImageType;
+import com.seecooker.common.core.exception.BizException;
+import com.seecooker.common.core.exception.ErrorType;
+import com.seecooker.common.redis.enums.RedisKey;
+import com.seecooker.dao.CommentDao;
+import com.seecooker.dao.PostDao;
+import com.seecooker.dao.UserDao;
+import com.seecooker.oss.util.AliOSSUtil;
+import com.seecooker.pojo.po.CommentPO;
 import com.seecooker.pojo.po.PostPO;
 import com.seecooker.pojo.po.UserPO;
 import com.seecooker.pojo.vo.community.CommentVO;
 import com.seecooker.pojo.vo.community.PostCommentVO;
 import com.seecooker.pojo.vo.community.PostDetailVO;
 import com.seecooker.pojo.vo.community.PostVO;
-import com.seecooker.common.enums.ImageType;
-import com.seecooker.common.exception.BizException;
-import com.seecooker.common.exception.ErrorType;
-import com.seecooker.dao.CommentDao;
-import com.seecooker.dao.PostDao;
-import com.seecooker.dao.UserDao;
-import com.seecooker.oss.util.AliOSSUtil;
-import com.seecooker.pojo.po.CommentPO;
 import com.seecooker.service.PostService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -40,25 +44,25 @@ public class PostServiceImpl implements PostService {
     private final PostDao postDao;
     private final UserDao userDao;
     private final CommentDao commentDao;
+    private final RedisTemplate redisTemplate;
 
-    public PostServiceImpl(PostDao postDao, UserDao userDao, CommentDao commentDao) {
+    public PostServiceImpl(PostDao postDao, UserDao userDao, CommentDao commentDao, RedisTemplate redisTemplate) {
         this.postDao = postDao;
         this.userDao = userDao;
         this.commentDao = commentDao;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
     public Long addPost(String title, String content, MultipartFile[] images) throws IOException, ClientException {
-        List<String> postImages = null;
-        if (images != null) {
-            postImages = AliOSSUtil.uploadFile(images, ImageType.POST_IMAGE);
-        }
+        List<String> postImages = AliOSSUtil.uploadFile(images, ImageType.POST_IMAGE);
         Long posterId = StpUtil.getLoginIdAsLong();
         PostPO post = PostPO.builder()
                 .title(title)
                 .content(content)
                 .posterId(posterId)
                 .images(postImages)
+                .likeUserIdList(Collections.emptyList())
                 .createTime(LocalDateTime.now())
                 .updateTime(LocalDateTime.now())
                 .build();
@@ -95,12 +99,41 @@ public class PostServiceImpl implements PostService {
             throw new BizException(ErrorType.POST_NOT_EXIST);
         }
         UserPO poster = userDao.findById(post.get().getPosterId()).get();
+
+        // 检查是否登陆
+        boolean isLogin = StpUtil.isLogin();
+        boolean like = false;
+
+        List<Long> likeUsersId = post.get().getLikeUserIdList();
+        Long likeNum = (long) likeUsersId.size();
+
+        Long userId = StpUtil.getLoginIdAsLong();
+        String key = RedisKey.POST_LIKE.getKey() + "::" + post.get().getId();
+        String hashKey = userId.toString();
+        Boolean hashResult = (Boolean) redisTemplate.opsForHash().get(key, hashKey);
+
+        likeNum += redisTemplate.opsForHash().entries(key).values().stream().filter(v->(Boolean)v).count();
+        // 是否已点赞
+        if (isLogin) {
+            if (Boolean.FALSE.equals(hashResult)) {
+                // 若缓存中为false，则为false
+                like = false;
+            }
+            else if (likeUsersId.contains(userId)) {
+                // 若缓存中或数据库中有点赞，则为true
+                like = true;
+                redisTemplate.opsForHash().put(hashKey, key, Boolean.TRUE);
+            }
+        }
+
         return PostDetailVO.builder()
                 .title(post.get().getTitle())
                 .content(post.get().getContent())
                 .images(post.get().getImages())
                 .posterName(poster.getUsername())
                 .posterAvatar(poster.getAvatar())
+                .like(like) // 未登陆默认为false
+                .likeNum(likeNum)
                 .build();
     }
 
@@ -138,4 +171,29 @@ public class PostServiceImpl implements PostService {
                 .toList();
     }
 
+    @Override
+    public Boolean likePost(Long postId) {
+        long userId = StpUtil.getLoginIdAsLong();
+        // 在redis中的hash进行记录，结构：hashKey--POST_LIKE::postId, key--userId, value--boolean
+        String key = RedisKey.POST_LIKE.getKey() + "::" + postId;
+        String hashKey = Long.toString(userId);
+        // 获取对应记录, value表示当前用户是否已经点赞
+        Boolean value = (Boolean) redisTemplate.opsForHash().get(key, hashKey);
+
+        // 无记录，读取数据库
+        if (value == null) {
+            PostPO post = postDao.findById(postId).get();
+            value = post.getLikeUserIdList().contains(userId);
+        }
+
+        if (Boolean.TRUE.equals(value)) {
+            // 已点赞，删除记录
+            redisTemplate.opsForHash().put(key, hashKey, Boolean.FALSE);
+        } else {
+            // 未点赞，添加记录
+            redisTemplate.opsForHash().put(key, hashKey, Boolean.TRUE);
+        }
+
+        return Boolean.FALSE.equals(value);
+    }
 }

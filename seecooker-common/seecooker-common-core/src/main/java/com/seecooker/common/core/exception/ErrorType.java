@@ -1,4 +1,4 @@
-package com.seecooker.common.exception;
+package com.seecooker.common.core.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,0 +1,34 @@
+stages:          # List of stages for jobs, and their order of execution
+  - build
+  - deploy
+
+build-job:       # This job runs in the build stage, which runs first.
+  stage: build
+  script:
+    - echo "Compiling the code..."
+    - echo "building....."
+    - mvn -B -D clean package -P test
+    - echo "Compile complete."
+  artifacts:
+    untracked: true
+  allow_failure: false
+
+deploy-job:      # This job runs in the deployment stage.
+  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+  environment: production
+  script:
+    - echo "Deploying application..."
+    - sshpass -p "$SERVER_PASSWD" scp -o StrictHostKeyChecking=no seecooker-web/target/seecooker-web-test-0.0.1.jar root@$SERVER_IP:~
+    - sshpass -p "$SERVER_PASSWD" scp -o StrictHostKeyChecking=no Dockerfile root@$SERVER_IP:~
+    - sshpass -p "$SERVER_PASSWD" ssh -o StrictHostKeyChecking=no root@$SERVER_IP "docker build -f Dockerfile -t seecooker:0.0.1 .;
+      echo "build image succeed";
+      docker stop seecooker_deploy;
+      echo "stop container succeed";
+      docker rm seecooker_deploy;
+      echo "delete container succeed";
+      docker run --name seecooker_deploy
+      -itd -p 8080:8080
+      -e OSS_ACCESS_KEY_ID=$OSS_ACCESS_KEY_ID
+      -e OSS_ACCESS_KEY_SECRET=$OSS_ACCESS_KEY_SECRET seecooker:0.0.1;
+      echo "deploy container succeed";"
+    - echo "Application successfully deployed."\

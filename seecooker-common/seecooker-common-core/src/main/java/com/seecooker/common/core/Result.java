@@ -1,7 +1,7 @@
-package com.seecooker.common;
+package com.seecooker.common.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.seecooker.common.exception.ErrorType;
+import com.seecooker.common.core.exception.ErrorType;
 import lombok.Getter;
 
 /**

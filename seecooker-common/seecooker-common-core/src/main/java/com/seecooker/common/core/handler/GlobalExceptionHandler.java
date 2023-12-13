@@ -1,9 +1,9 @@
-package com.seecooker.common.handler;
+package com.seecooker.common.core.handler;
 
 import cn.dev33.satoken.exception.NotLoginException;
-import com.seecooker.common.Result;
-import com.seecooker.common.exception.BizException;
-import com.seecooker.common.exception.ErrorType;
+import com.seecooker.common.core.Result;
+import com.seecooker.common.core.exception.ErrorType;
+import com.seecooker.common.core.exception.BizException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;

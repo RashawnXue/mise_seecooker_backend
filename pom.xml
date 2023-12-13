@@ -12,12 +12,9 @@
 
     <groupId>com.seecooker</groupId>
     <artifactId>seecooker</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>seecooker</name>
     <description>seecooker_backend</description>
-    <properties>
-        <java.version>17</java.version>
-    </properties>
 
     <modules>
         <module>seecooker-common</module>
@@ -36,37 +33,37 @@
             <dependency>
                 <groupId>com.seecooker</groupId>
                 <artifactId>seecooker-web</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.1</version>
             </dependency>
             <dependency>
                 <groupId>com.seecooker</groupId>
                 <artifactId>seecooker-common</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.1</version>
             </dependency>
             <dependency>
                 <groupId>com.seecooker</groupId>
                 <artifactId>seecooker-pojo</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.1</version>
             </dependency>
             <dependency>
                 <groupId>com.seecooker</groupId>
                 <artifactId>seecooker-oss</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.1</version>
             </dependency>
             <dependency>
                 <groupId>com.seecooker</groupId>
                 <artifactId>seecooker-dao</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.1</version>
             </dependency>
             <dependency>
                 <groupId>com.seecooker</groupId>
                 <artifactId>seecooker-service</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.1</version>
             </dependency>
             <dependency>
                 <groupId>com.seecooker</groupId>
                 <artifactId>seecooker-controller</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

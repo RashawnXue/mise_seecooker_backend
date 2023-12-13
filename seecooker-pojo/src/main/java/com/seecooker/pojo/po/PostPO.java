@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -56,6 +57,11 @@ public class PostPO {
     private List<String> images;
 
     /**
+     * 点赞用户id列表
+     */
+    private List<Long> likeUserIdList;
+
+    /**
      * 数据创建的时间戳
      */
     @CreationTimestamp
@@ -66,5 +72,4 @@ public class PostPO {
      */
     @UpdateTimestamp
     private LocalDateTime updateTime;
-
 }

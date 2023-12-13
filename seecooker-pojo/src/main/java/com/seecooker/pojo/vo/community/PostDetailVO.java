@@ -40,4 +40,14 @@ public class PostDetailVO {
      * 帖子图片
      */
     private List<String> images;
+
+    /**
+     * 当前用户是否点赞，未登陆为false
+     */
+    private Boolean like;
+
+    /**
+     * 点赞数
+     */
+    private Long likeNum;
 }

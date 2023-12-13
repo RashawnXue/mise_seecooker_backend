@@ -7,9 +7,9 @@ import com.aliyun.oss.common.auth.CredentialsProviderFactory;
 import com.aliyun.oss.common.auth.EnvironmentVariableCredentialsProvider;
 import com.aliyun.oss.model.GeneratePresignedUrlRequest;
 import com.aliyuncs.exceptions.ClientException;
-import com.seecooker.common.enums.ImageType;
-import com.seecooker.common.exception.BizException;
-import com.seecooker.common.exception.ErrorType;
+import com.seecooker.common.core.enums.ImageType;
+import com.seecooker.common.core.exception.BizException;
+import com.seecooker.common.core.exception.ErrorType;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
