@@ -1,13 +1,20 @@
 stages:          # List of stages for jobs, and their order of execution
+  - test
   - build
   - deploy
+
+test-job:
+  stage: test
+  script:
+    - echo "Running unit tests..."
+    - mvn -B -D clean test -P test
 
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
   script:
     - echo "Compiling the code..."
     - echo "building....."
-    - mvn -B -D clean package -P test
+    - mvn -B clean package -Dmaven.test.skip=true -P prod
     - echo "Compile complete."
   artifacts:
     untracked: true
@@ -18,7 +25,7 @@ deploy-job:      # This job runs in the deployment stage.
   environment: production
   script:
     - echo "Deploying application..."
-    - sshpass -p "$SERVER_PASSWD" scp -o StrictHostKeyChecking=no seecooker-web/target/seecooker-web-test-0.0.1.jar root@$SERVER_IP:~
+    - sshpass -p "$SERVER_PASSWD" scp -o StrictHostKeyChecking=no seecooker-web/target/seecooker-web-prod-0.0.1.jar root@$SERVER_IP:~
     - sshpass -p "$SERVER_PASSWD" scp -o StrictHostKeyChecking=no Dockerfile root@$SERVER_IP:~
     - sshpass -p "$SERVER_PASSWD" ssh -o StrictHostKeyChecking=no root@$SERVER_IP "docker build -f Dockerfile -t seecooker:0.0.1 .;
       echo "build image succeed";
