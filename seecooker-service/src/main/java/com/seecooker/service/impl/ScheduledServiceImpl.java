@@ -17,10 +17,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 定时任务实现类
@@ -49,14 +46,14 @@ public class ScheduledServiceImpl implements ScheduledService {
     public void scheduledUpdatePostLike() {
         log.info("Update post like information in database");
         String keyPrefix = RedisKey.POST_LIKE.getKey();
-        Set<String> keys = redisTemplate.opsForHash().keys(keyPrefix + "*");
+        Set<String> keys = redisTemplate.keys(keyPrefix + "*");
         keys.forEach(key -> {
-            Map<String, Boolean> entries = redisTemplate.opsForHash().entries(key);
+            Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
             entries.forEach((hashKey, value) -> {
                 // 从redis中解析帖子和用户id
                 Long postId = Long.parseLong(key.split(RedisKey.POST_LIKE_DELIMITER.getKey())[1]);
-                Long userId = Long.parseLong(hashKey);
-                boolean res = value;
+                Long userId = Long.parseLong((String) hashKey);
+                boolean res = (Boolean) value;
                 // 从数据库中获取持久化对象
                 Optional<PostPO> postOptional = postDao.findById(postId);
                 if (postOptional.isEmpty()) {
@@ -84,30 +81,29 @@ public class ScheduledServiceImpl implements ScheduledService {
             });
         });
         // 持久化完成后删除缓存
-        redisTemplate.opsForHash().delete(keys);
+        redisTemplate.delete(keys);
         log.info("Finish update post like information in database");
     }
 
     @Override
-    @Scheduled(cron = "0 0/10 * * * *")
+    @Scheduled(cron = "0 0/1 * * * *")
     @Transactional
     public void scheduledUpdateRecipeFavorite() {
         log.info("Update recipe favorite information in database");
         String keyPrefix = RedisKey.RECIPE_FAVORITE.getKey();
-        Set<String> keys = redisTemplate.opsForHash().keys(keyPrefix + "*");
+        Set<String> keys = redisTemplate.keys(keyPrefix + "*");
         keys.forEach(key -> {
-            Map<String, Boolean> entries = redisTemplate.opsForHash().entries(key);
+            Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
             entries.forEach((hashKey, value) -> {
-                // 从redis中解析帖子和用户id
+                // 从redis中解析用户id和菜谱id
                 Long userId = Long.parseLong(key.split(RedisKey.POST_LIKE_DELIMITER.getKey())[1]);
-                Long recipeId = Long.parseLong(hashKey);
-                boolean res = value;
+                Long recipeId = Long.parseLong((String) hashKey);
+                boolean res = (Boolean) value;
                 // 从数据库中获取持久化对象
                 Optional<RecipePO> recipeOptional = recipeDao.findById(recipeId);
                 if (recipeOptional.isEmpty()) {
                     throw new BizException(ErrorType.RECIPE_NOT_EXIST);
                 }
-                RecipePO recipe = recipeOptional.get();
                 Optional<UserPO> userOptional = userDao.findById(userId);
                 if (userOptional.isEmpty()) {
                     throw new BizException(ErrorType.USER_NOT_EXIST);
@@ -130,7 +126,7 @@ public class ScheduledServiceImpl implements ScheduledService {
             });
         });
         // 持久化完成后删除缓存
-        redisTemplate.opsForHash().delete(keys);
+        redisTemplate.delete(keys);
         log.info("Finish update recipe favorite information in database");
     }
 }
