@@ -115,6 +115,7 @@ public class UserController {
         userService.modifyPassword(username,password,newPassword);
         return Result.success();
     }
+
     @PostMapping("/modify/avatar")
     public Result<Void> modifyAvatar(String username,MultipartFile avatar)throws Exception{
         StpUtil.checkLogin();

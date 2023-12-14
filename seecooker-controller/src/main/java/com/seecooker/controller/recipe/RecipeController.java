@@ -91,4 +91,18 @@ public class RecipeController {
         List<RecipeVO> recipes = recipeService.getRecipesByNameLike(query);
         return Result.success(recipes);
     }
+
+    /**
+     * 收藏或取消收藏菜谱
+     *
+     * @param recipeId 菜谱id
+     * @return 当前用户是否收藏菜谱
+     */
+    @PutMapping("recipe/favorite/{recipeId}")
+    public Result<Boolean> favoriteRecipe(@PathVariable @NotNull Long recipeId) {
+        // 检查是否登陆，未登陆不能收藏
+        StpUtil.checkLogin();
+        Boolean result = recipeService.favoriteRecipe(recipeId);
+        return Result.success(result);
+    }
 }

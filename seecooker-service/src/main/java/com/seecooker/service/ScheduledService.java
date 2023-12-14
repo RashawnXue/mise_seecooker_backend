@@ -11,4 +11,9 @@ public interface ScheduledService {
      * 定时更新帖子点赞信息
      */
     void scheduledUpdatePostLike();
+
+    /**
+     * 定时更新收藏菜谱信息
+     */
+    void scheduledUpdateRecipeFavorite();
 }

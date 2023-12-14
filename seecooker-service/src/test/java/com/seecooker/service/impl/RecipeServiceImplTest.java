@@ -19,6 +19,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -45,8 +46,9 @@ public class RecipeServiceImplTest {
         Long id = userDao.save(UserPO.builder()
                 .username(username)
                 .password(password)
-                .posts(List.of())
-                .postRecipes(List.of())
+                .favoriteRecipes(Collections.emptyList())
+                .posts(Collections.emptyList())
+                .postRecipes(Collections.emptyList())
                 .build()).getId();
         StpUtil.login(id);
     }
@@ -128,6 +130,18 @@ public class RecipeServiceImplTest {
         recipes = recipeService.getRecipesByNameLike("铁鹅");
         assertEquals(1, recipes.size());
         assertEquals("铁锅炖大鹅", recipes.get(0).getName());
+    }
+
+    @Test
+    void favoriteRecipeTest() throws IOException, ClientException {
+        PublishRecipeVO publishRecipe = PublishRecipeVO.builder()
+                .name("老八秘制小汉堡")
+                .introduction(faker.name().title())
+                .stepContents(Collections.emptyList())
+                .build();
+        Long id = recipeService.addRecipe(publishRecipe, null, new MultipartFile[]{});
+        assertEquals(Boolean.TRUE, recipeService.favoriteRecipe(id));
+        assertEquals(Boolean.FALSE, recipeService.favoriteRecipe(id));
     }
 
 }

@@ -50,4 +50,9 @@ public class RecipeDetailVO {
      * 作者头像url
      */
     private String authorAvatar;
+
+    /**
+     * 是否收藏，为登陆默认为false
+     */
+    private Boolean isFavorite;
 }
