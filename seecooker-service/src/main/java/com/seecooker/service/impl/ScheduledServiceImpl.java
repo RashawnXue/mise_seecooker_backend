@@ -86,7 +86,7 @@ public class ScheduledServiceImpl implements ScheduledService {
     }
 
     @Override
-    @Scheduled(cron = "0 0/1 * * * *")
+    @Scheduled(cron = "0 0/10 * * * *")
     @Transactional
     public void scheduledUpdateRecipeFavorite() {
         log.info("Update recipe favorite information in database");
