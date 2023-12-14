@@ -1,13 +1,20 @@
 stages:          # List of stages for jobs, and their order of execution
+  - test
   - build
   - deploy
+
+test-job:
+  stage: test
+  script:
+    - echo "Running unit tests..."
+    - mvn -B -D clean test -P test
 
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
   script:
     - echo "Compiling the code..."
     - echo "building....."
-    - mvn -B -D clean package -P test
+    - mvn -B clean package -Dmaven.test.skip=true -P prod
     - echo "Compile complete."
   artifacts:
     untracked: true
