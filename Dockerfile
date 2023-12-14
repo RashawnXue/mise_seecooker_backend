@@ -4,4 +4,4 @@ WORKDIR /home/jar
 COPY . /home/jar
 EXPOSE 8080/tcp
 
-CMD ["java", "-jar", "seecooker-web-test-0.0.1.jar"]
+CMD ["java", "-jar", "seecooker-web-prod-0.0.1.jar"]
