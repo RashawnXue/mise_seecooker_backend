@@ -2,6 +2,8 @@ package com.seecooker.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.aliyuncs.exceptions.ClientException;
+import com.seecooker.common.redis.enums.RedisKey;
+import com.seecooker.pojo.po.PostPO;
 import com.seecooker.pojo.po.RecipePO;
 import com.seecooker.pojo.po.UserPO;
 import com.seecooker.pojo.vo.recipe.PublishRecipeVO;
@@ -15,13 +17,13 @@ import com.seecooker.dao.UserDao;
 import com.seecooker.oss.util.AliOSSUtil;
 import com.seecooker.service.RecipeService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * 菜谱业务服务层实现类
@@ -34,10 +36,12 @@ import java.util.List;
 public class RecipeServiceImpl implements RecipeService {
     private final RecipeDao recipeDao;
     private final UserDao userDao;
+    private final RedisTemplate redisTemplate;
 
-    public RecipeServiceImpl(RecipeDao recipeDao, UserDao userDao) {
+    public RecipeServiceImpl(RecipeDao recipeDao, UserDao userDao, RedisTemplate redisTemplate) {
         this.recipeDao = recipeDao;
         this.userDao = userDao;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -73,6 +77,28 @@ public class RecipeServiceImpl implements RecipeService {
             throw new BizException(ErrorType.USER_NOT_EXIST);
         }
         UserPO author = userDao.findById(recipe.getAuthorId()).get();
+
+        boolean isFavorite = false;
+        boolean isLogin = StpUtil.isLogin();
+
+        if (isLogin) {
+            // 先查缓存
+            long userId = StpUtil.getLoginIdAsLong();
+            String key = RedisKey.RECIPE_FAVORITE.getKey() + RedisKey.RECIPE_FAVORITE_DELIMITER.getKey() + userId;
+            String hashKey = recipeId.toString();
+            Boolean hashResult = (Boolean) redisTemplate.opsForHash().get(key, hashKey);
+
+            if (Boolean.FALSE.equals(hashResult)) {
+                // 若缓存中为false，则为false
+                isFavorite = false;
+            }
+            else if (Boolean.TRUE.equals(hashResult) || author.getFavoriteRecipes().contains(recipeId)) {
+                // 若缓存中或数据库中有点赞，则为true
+                isFavorite = true;
+                redisTemplate.opsForHash().put(key, hashKey, Boolean.TRUE);
+            }
+        }
+
         return RecipeDetailVO.builder()
                 .authorAvatar(author.getAvatar())
                 .authorName(author.getUsername())
@@ -81,6 +107,7 @@ public class RecipeServiceImpl implements RecipeService {
                 .stepImages(recipe.getStepImages())
                 .name(recipe.getName())
                 .cover(recipe.getCover())
+                .isFavorite(isFavorite)
                 .build();
     }
 
@@ -88,6 +115,35 @@ public class RecipeServiceImpl implements RecipeService {
     public List<RecipeVO> getRecipesByNameLike(String query) {
         List<RecipePO> recipes = recipeDao.findByNameLike("%" + String.join("%", query.split("")) + "%");
         return mapRecipes(recipes);
+    }
+
+    @Override
+    public Boolean favoriteRecipe(Long recipeId) {
+        long userId = StpUtil.getLoginIdAsLong();
+        // 在redis中的hash进行记录，结构：key--RECIPE_FAVORITE::userId, hashKey--recipeId, value--Boolean
+        String key = RedisKey.RECIPE_FAVORITE.getKey() + RedisKey.RECIPE_FAVORITE_DELIMITER.getKey() + userId;
+        String hashKey = Long.toString(recipeId);
+        // 获取对应记录, value表示当前用户是否已经收藏
+        Boolean value = (Boolean) redisTemplate.opsForHash().get(key, hashKey);
+
+        // 无记录，读取数据库
+        if (value == null) {
+            Optional<UserPO> userOptional = userDao.findById(userId);
+            if (userOptional.isEmpty()) {
+                throw new BizException(ErrorType.USER_NOT_EXIST);
+            }
+            value = userOptional.get().getFavoriteRecipes().contains(recipeId);
+        }
+
+        if (Boolean.TRUE.equals(value)) {
+            // 已收藏，删除记录
+            redisTemplate.opsForHash().put(key, hashKey, Boolean.FALSE);
+        } else {
+            // 未收藏，添加记录
+            redisTemplate.opsForHash().put(key, hashKey, Boolean.TRUE);
+        }
+
+        return Boolean.FALSE.equals(value);
     }
 
     private List<RecipeVO> mapRecipes(List<RecipePO> recipes) {

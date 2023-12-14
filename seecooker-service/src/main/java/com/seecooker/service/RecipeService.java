@@ -49,4 +49,12 @@ public interface RecipeService {
      * @return 菜谱列表
      */
     List<RecipeVO> getRecipesByNameLike(String query);
+
+    /**
+     * 收藏或取消收藏菜谱
+     *
+     * @param recipeId 菜谱id
+     * @return 菜谱状态
+     */
+    Boolean favoriteRecipe(Long recipeId);
 }

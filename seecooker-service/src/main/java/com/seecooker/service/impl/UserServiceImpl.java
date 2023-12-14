@@ -3,14 +3,13 @@ package com.seecooker.service.impl;
 import cn.dev33.satoken.secure.BCrypt;
 import cn.dev33.satoken.stp.StpUtil;
 import com.aliyuncs.exceptions.ClientException;
-
-import com.seecooker.pojo.po.UserPO;
-import com.seecooker.pojo.vo.user.UserInfoVO;
 import com.seecooker.common.core.enums.ImageType;
 import com.seecooker.common.core.exception.BizException;
 import com.seecooker.common.core.exception.ErrorType;
 import com.seecooker.dao.UserDao;
 import com.seecooker.oss.util.AliOSSUtil;
+import com.seecooker.pojo.po.UserPO;
+import com.seecooker.pojo.vo.user.UserInfoVO;
 import com.seecooker.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,9 +48,9 @@ public class UserServiceImpl implements UserService {
                         .username(username)
                         .password(BCrypt.hashpw(password))
                         .avatar(avatar)
-                        .posts(List.of())
-                        .postRecipes(List.of())
-                        .favoriteRecipes(List.of())
+                        .posts(Collections.emptyList())
+                        .postRecipes(Collections.emptyList())
+                        .favoriteRecipes(Collections.emptyList())
                         .createTime(LocalDateTime.now())
                         .updateTime(LocalDateTime.now())
                         .build());

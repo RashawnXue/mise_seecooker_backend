@@ -19,7 +19,6 @@ import com.seecooker.pojo.vo.community.PostDetailVO;
 import com.seecooker.pojo.vo.community.PostVO;
 import com.seecooker.service.PostService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -107,7 +106,7 @@ public class PostServiceImpl implements PostService {
         List<Long> likeUsersId = post.get().getLikeUserIdList();
         Long likeNum = (long) likeUsersId.size();
 
-        String key = RedisKey.POST_LIKE.getKey() + "::" + post.get().getId();
+        String key = RedisKey.POST_LIKE.getKey() + RedisKey.POST_LIKE_DELIMITER.getKey() + post.get().getId();
         likeNum += redisTemplate.opsForHash().entries(key).values().stream().filter(v->(Boolean)v).count();
 
         // 是否已点赞
@@ -120,7 +119,7 @@ public class PostServiceImpl implements PostService {
                 // 若缓存中为false，则为false
                 like = false;
             }
-            else if (likeUsersId.contains(userId)) {
+            else if (Boolean.TRUE.equals(hashResult) || likeUsersId.contains(userId)) {
                 // 若缓存中或数据库中有点赞，则为true
                 like = true;
                 redisTemplate.opsForHash().put(hashKey, key, Boolean.TRUE);
@@ -176,15 +175,18 @@ public class PostServiceImpl implements PostService {
     public Boolean likePost(Long postId) {
         long userId = StpUtil.getLoginIdAsLong();
         // 在redis中的hash进行记录，结构：hashKey--POST_LIKE::postId, key--userId, value--boolean
-        String key = RedisKey.POST_LIKE.getKey() + "::" + postId;
+        String key = RedisKey.POST_LIKE.getKey() + RedisKey.POST_LIKE_DELIMITER.getKey() + postId;
         String hashKey = Long.toString(userId);
         // 获取对应记录, value表示当前用户是否已经点赞
         Boolean value = (Boolean) redisTemplate.opsForHash().get(key, hashKey);
 
         // 无记录，读取数据库
         if (value == null) {
-            PostPO post = postDao.findById(postId).get();
-            value = post.getLikeUserIdList().contains(userId);
+            Optional<PostPO> postOptional = postDao.findById(postId);
+            if (postOptional.isEmpty()) {
+                throw new BizException(ErrorType.POST_NOT_EXIST);
+            }
+            value = postOptional.get().getLikeUserIdList().contains(userId);
         }
 
         if (Boolean.TRUE.equals(value)) {
