@@ -127,11 +127,15 @@ public class UserServiceImpl implements UserService {
         if(newUsername==null||newUsername.isEmpty()){
             throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "新用户名不能为空");
         }
+        UserPO user = userDao.findByUsername(newUsername);
+        if (user != null) {
+            throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "该用户名已存在");
+        }
         // 检查相同值
         if(username.equals(newUsername)){
             throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "新用户名不能与原用户名相同");
         }
-        UserPO user = userDao.findByUsername(username);
+        user = userDao.findByUsername(username);
         // 用户名不存在
         if (user == null) {
             log.error("The username does not exist");
