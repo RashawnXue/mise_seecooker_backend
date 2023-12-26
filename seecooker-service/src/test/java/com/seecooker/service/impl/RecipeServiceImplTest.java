@@ -9,17 +9,13 @@ import com.seecooker.pojo.po.RecipePO;
 import com.seecooker.pojo.po.UserPO;
 import com.seecooker.pojo.vo.recipe.PublishRecipeVO;
 import com.seecooker.pojo.vo.recipe.RecipeDetailVO;
-import com.seecooker.pojo.vo.recipe.RecipeVO;
+import com.seecooker.pojo.vo.recipe.RecipeListVO;
 import com.seecooker.service.RecipeService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -87,7 +83,7 @@ public class RecipeServiceImplTest {
         // TODO: 此处不应当有recipeService，后续需要mock掉
         Long id1 = recipeService.addRecipe(publishRecipe1, null, new MultipartFile[]{});
         Long id2 = recipeService.addRecipe(publishRecipe2, null, new MultipartFile[]{});
-        List<RecipeVO> recipes = recipeService.getRecipes();
+        List<RecipeListVO> recipes = recipeService.getRecipes();
         assertEquals(publishRecipe1.getName(), recipes.get(0).getName());
         assertEquals(publishRecipe2.getName(), recipes.get(1).getName());
     }
@@ -120,7 +116,7 @@ public class RecipeServiceImplTest {
                 .build();
         recipeService.addRecipe(publishRecipe1, null, new MultipartFile[]{});
         recipeService.addRecipe(publishRecipe2, null, new MultipartFile[]{});
-        List<RecipeVO> recipes = recipeService.getRecipesByNameLike("汉堡");
+        List<RecipeListVO> recipes = recipeService.getRecipesByNameLike("汉堡");
         assertEquals(1, recipes.size());
         assertEquals("老八秘制小汉堡", recipes.get(0).getName());
         recipes = recipeService.getRecipesByNameLike("大鹅");

@@ -4,7 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.aliyuncs.exceptions.ClientException;
 import com.seecooker.pojo.vo.recipe.PublishRecipeVO;
 import com.seecooker.pojo.vo.recipe.RecipeDetailVO;
-import com.seecooker.pojo.vo.recipe.RecipeVO;
+import com.seecooker.pojo.vo.recipe.RecipeListVO;
 
 import com.seecooker.common.core.Result;
 import com.seecooker.common.core.exception.BizException;
@@ -63,8 +63,8 @@ public class RecipeController {
      * @return 响应结果
      */
     @GetMapping("recipes")
-    public Result<List<RecipeVO>> getRecipes() {
-        List<RecipeVO> recipes = recipeService.getRecipes();
+    public Result<List<RecipeListVO>> getRecipes() {
+        List<RecipeListVO> recipes = recipeService.getRecipes();
         return Result.success(recipes);
     }
 
@@ -87,8 +87,8 @@ public class RecipeController {
      * @return 响应结果
      */
     @GetMapping("recipes/search")
-    public Result<List<RecipeVO>> searchRecipes(@RequestParam @NotNull String query) {
-        List<RecipeVO> recipes = recipeService.getRecipesByNameLike(query);
+    public Result<List<RecipeListVO>> searchRecipes(@RequestParam @NotNull String query) {
+        List<RecipeListVO> recipes = recipeService.getRecipesByNameLike(query);
         return Result.success(recipes);
     }
 

@@ -70,6 +70,11 @@ public class RecipePO {
     @Column(length = 500)
     private List<String> stepContents;
 
+    /**
+     * 所需配料id
+     */
+    @NotNull
+    private List<Long> ingredientList;
 
     /**
      * 数据创建的时间戳

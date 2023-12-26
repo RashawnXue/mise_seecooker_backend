@@ -3,12 +3,11 @@ package com.seecooker.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.aliyuncs.exceptions.ClientException;
 import com.seecooker.common.redis.enums.RedisKey;
-import com.seecooker.pojo.po.PostPO;
 import com.seecooker.pojo.po.RecipePO;
 import com.seecooker.pojo.po.UserPO;
 import com.seecooker.pojo.vo.recipe.PublishRecipeVO;
 import com.seecooker.pojo.vo.recipe.RecipeDetailVO;
-import com.seecooker.pojo.vo.recipe.RecipeVO;
+import com.seecooker.pojo.vo.recipe.RecipeListVO;
 import com.seecooker.common.core.enums.ImageType;
 import com.seecooker.common.core.exception.BizException;
 import com.seecooker.common.core.exception.ErrorType;
@@ -64,7 +63,7 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public List<RecipeVO> getRecipes() {
+    public List<RecipeListVO> getRecipes() {
         List<RecipePO> recipes = recipeDao.findAll();
         return mapRecipes(recipes);
     }
@@ -93,7 +92,7 @@ public class RecipeServiceImpl implements RecipeService {
                 isFavorite = false;
             }
             else if (Boolean.TRUE.equals(hashResult) || author.getFavoriteRecipes().contains(recipeId)) {
-                // 若缓存中或数据库中有点赞，则为true
+                // 若缓存中或数据库中有收藏，则为true
                 isFavorite = true;
                 redisTemplate.opsForHash().put(key, hashKey, Boolean.TRUE);
             }
@@ -112,7 +111,7 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public List<RecipeVO> getRecipesByNameLike(String query) {
+    public List<RecipeListVO> getRecipesByNameLike(String query) {
         List<RecipePO> recipes = recipeDao.findByNameLike("%" + String.join("%", query.split("")) + "%");
         return mapRecipes(recipes);
     }
@@ -146,16 +145,30 @@ public class RecipeServiceImpl implements RecipeService {
         return Boolean.FALSE.equals(value);
     }
 
-    private List<RecipeVO> mapRecipes(List<RecipePO> recipes) {
+    private List<RecipeListVO> mapRecipes(List<RecipePO> recipes) {
+        boolean isLogin = StpUtil.isLogin();
+        List<Long> favoriteRecipes;
+        if (isLogin) {
+            Long userId = StpUtil.getLoginIdAsLong();
+            UserPO user = userDao.findById(userId).get();
+            favoriteRecipes = user.getFavoriteRecipes();
+        } else {
+            favoriteRecipes = Collections.emptyList();
+        }
         return recipes.stream().sorted(Comparator.comparing(RecipePO::getCreateTime))
                 .map(recipePO -> {
                     UserPO author = userDao.findById(recipePO.getAuthorId()).get();
-                    return RecipeVO.builder()
+                    boolean isFavorite = false;
+                    if (isLogin) {
+                        isFavorite = favoriteRecipes.contains(recipePO.getId());
+                    }
+                    return RecipeListVO.builder()
                             .cover(recipePO.getCover())
                             .id(recipePO.getId())
                             .name(recipePO.getName())
                             .authorAvatar(author.getAvatar())
                             .authorName(author.getUsername())
+                            .isFavorite(isFavorite)
                             .build();
                 })
                 .toList();

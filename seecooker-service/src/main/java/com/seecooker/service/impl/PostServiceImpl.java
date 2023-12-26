@@ -134,6 +134,7 @@ public class PostServiceImpl implements PostService {
                 .posterAvatar(poster.getAvatar())
                 .like(like) // 未登陆默认为false
                 .likeNum(likeNum)
+                .publishTime(post.get().getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .build();
     }
 

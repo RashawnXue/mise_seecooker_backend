@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class RecipeVO {
+public class RecipeListVO {
     /**
      * 菜谱id
      */
@@ -38,4 +38,9 @@ public class RecipeVO {
      * 作者头像
      */
     private String authorAvatar;
+
+    /**
+     * 是否收藏，未登陆默认False
+     */
+    private Boolean isFavorite;
 }

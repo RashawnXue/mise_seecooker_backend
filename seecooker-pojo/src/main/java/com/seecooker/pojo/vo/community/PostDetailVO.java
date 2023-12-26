@@ -50,4 +50,9 @@ public class PostDetailVO {
      * 点赞数
      */
     private Long likeNum;
+
+    /**
+     * 发布时间
+     */
+    private String publishTime;
 }
