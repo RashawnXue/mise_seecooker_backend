@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -171,6 +170,14 @@ public class UserServiceImpl implements UserService {
         }
         if(avatar==null||avatar.isEmpty())avatar=null;
         user.setAvatar(avatar);
+        userDao.save(user);
+    }
+
+    @Override
+    public void modifySignature(String signature) {
+        Long userId = StpUtil.getLoginIdAsLong();
+        UserPO user = userDao.findById(userId).get();
+        user.setSignature(signature);
         userDao.save(user);
     }
 }
