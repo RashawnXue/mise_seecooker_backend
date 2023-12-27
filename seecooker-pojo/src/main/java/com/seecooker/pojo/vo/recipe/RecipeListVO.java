@@ -40,6 +40,16 @@ public class RecipeListVO {
     private String authorAvatar;
 
     /**
+     * 简介
+     */
+    private String introduction;
+
+    /**
+     * 评分
+     */
+    private Double score;
+
+    /**
      * 是否收藏，未登陆默认False
      */
     private Boolean isFavorite;

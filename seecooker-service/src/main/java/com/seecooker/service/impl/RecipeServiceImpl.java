@@ -218,6 +218,8 @@ public class RecipeServiceImpl implements RecipeService {
                             .cover(recipePO.getCover())
                             .id(recipePO.getId())
                             .name(recipePO.getName())
+                            .introduction(recipePO.getIntroduction())
+                            .score(recipePO.getScore())
                             .authorAvatar(author.getAvatar())
                             .authorName(author.getUsername())
                             .isFavorite(isFavorite)
