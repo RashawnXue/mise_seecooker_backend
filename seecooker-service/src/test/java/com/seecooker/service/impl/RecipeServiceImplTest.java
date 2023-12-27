@@ -60,6 +60,8 @@ public class RecipeServiceImplTest {
     void addRecipeTest() throws IOException, ClientException {
         PublishRecipeVO publishRecipe = PublishRecipeVO.builder()
                 .name(faker.app().name())
+                .ingredients(List.of("臭豆腐"))
+                .amounts(List.of("一罐"))
                 .introduction(faker.name().title())
                 .stepContents(Collections.emptyList())
                 .build();
@@ -72,11 +74,15 @@ public class RecipeServiceImplTest {
     void getRecipesTest() throws IOException, ClientException {
         PublishRecipeVO publishRecipe1 = PublishRecipeVO.builder()
                 .name(faker.app().name())
+                .ingredients(List.of("臭豆腐"))
+                .amounts(List.of("一罐"))
                 .introduction(faker.name().title())
                 .stepContents(Collections.emptyList())
                 .build();
         PublishRecipeVO publishRecipe2 = PublishRecipeVO.builder()
                 .name(faker.app().name())
+                .ingredients(List.of("臭豆腐"))
+                .amounts(List.of("一罐"))
                 .introduction(faker.name().title())
                 .stepContents(Collections.emptyList())
                 .build();
@@ -92,6 +98,8 @@ public class RecipeServiceImplTest {
     void getRecipeDetailByIdTest() throws IOException, ClientException {
         PublishRecipeVO publishRecipe = PublishRecipeVO.builder()
                 .name(faker.app().name())
+                .ingredients(List.of("臭豆腐"))
+                .amounts(List.of("一罐"))
                 .introduction(faker.name().title())
                 .stepContents(Collections.emptyList())
                 .build();
@@ -106,11 +114,15 @@ public class RecipeServiceImplTest {
     void getRecipesByNameLike() throws IOException, ClientException {
         PublishRecipeVO publishRecipe1 = PublishRecipeVO.builder()
                 .name("老八秘制小汉堡")
+                .ingredients(List.of("臭豆腐"))
+                .amounts(List.of("一罐"))
                 .introduction(faker.name().title())
                 .stepContents(Collections.emptyList())
                 .build();
         PublishRecipeVO publishRecipe2 = PublishRecipeVO.builder()
                 .name("铁锅炖大鹅")
+                .ingredients(List.of("大鹅"))
+                .amounts(List.of("一只"))
                 .introduction(faker.name().title())
                 .stepContents(Collections.emptyList())
                 .build();
@@ -132,6 +144,8 @@ public class RecipeServiceImplTest {
     void favoriteRecipeTest() throws IOException, ClientException {
         PublishRecipeVO publishRecipe = PublishRecipeVO.builder()
                 .name("老八秘制小汉堡")
+                .ingredients(List.of("臭豆腐"))
+                .amounts(List.of("一罐"))
                 .introduction(faker.name().title())
                 .stepContents(Collections.emptyList())
                 .build();

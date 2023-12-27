@@ -140,10 +140,8 @@ public class PostServiceImplTest {
                 .updateTime(LocalDateTime.now())
                 .build());
         String commentContent = faker.address().cityName();
-        Long id = postService.addComment(PostCommentVO.builder().postId(post.getId()).content(commentContent).build());
-        CommentPO comment = commentDao.findById(id).get();
-        assertEquals(comment.getCommenterId(), StpUtil.getLoginIdAsLong());
-        assertEquals(comment.getPostId(), post.getId());
+        CommentVO comment = postService.addComment(PostCommentVO.builder().postId(post.getId()).content(commentContent).build());
+        assertEquals(comment.getContent(), commentContent);
     }
 
     @Test
