@@ -53,6 +53,10 @@ public class RecipeController {
         if (publishRecipe.getStepContents().size() != stepImages.length) {
             throw new BizException(ErrorType.RECIPE_STEP_MATCH_ERROR);
         }
+
+        if (publishRecipe.getIngredients().size() != publishRecipe.getAmounts().size()) {
+            throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "配料与量不匹配");
+        }
         Long id = recipeService.addRecipe(publishRecipe, cover, stepImages);
         return Result.success(id);
     }
@@ -103,6 +107,20 @@ public class RecipeController {
         // 检查是否登陆，未登陆不能收藏
         StpUtil.checkLogin();
         Boolean result = recipeService.favoriteRecipe(recipeId);
+        return Result.success(result);
+    }
+
+    /**
+     * 菜谱评分
+     *
+     * @param recipeId 菜谱id
+     * @param score 评分
+     * @return 当前均分
+     */
+    @PostMapping("recipe/score")
+    public Result<Double> scoreRecipe(Long recipeId, Double score) {
+        StpUtil.checkLogin();
+        double result = recipeService.scoreRecipe(recipeId, score);
         return Result.success(result);
     }
 }

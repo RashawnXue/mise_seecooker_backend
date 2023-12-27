@@ -57,4 +57,13 @@ public interface RecipeService {
      * @return 菜谱状态
      */
     Boolean favoriteRecipe(Long recipeId);
+
+    /**
+     * 菜谱评分
+     *
+     * @param recipeId 菜谱id
+     * @param score 评分
+     * @return 菜谱均分
+     */
+    double scoreRecipe(Long recipeId, Double score);
 }

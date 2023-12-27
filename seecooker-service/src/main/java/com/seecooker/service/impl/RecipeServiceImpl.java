@@ -3,16 +3,14 @@ package com.seecooker.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.aliyuncs.exceptions.ClientException;
 import com.seecooker.common.redis.enums.RedisKey;
-import com.seecooker.pojo.po.RecipePO;
-import com.seecooker.pojo.po.UserPO;
+import com.seecooker.dao.*;
+import com.seecooker.pojo.po.*;
 import com.seecooker.pojo.vo.recipe.PublishRecipeVO;
 import com.seecooker.pojo.vo.recipe.RecipeDetailVO;
 import com.seecooker.pojo.vo.recipe.RecipeListVO;
 import com.seecooker.common.core.enums.ImageType;
 import com.seecooker.common.core.exception.BizException;
 import com.seecooker.common.core.exception.ErrorType;
-import com.seecooker.dao.RecipeDao;
-import com.seecooker.dao.UserDao;
 import com.seecooker.oss.util.AliOSSUtil;
 import com.seecooker.service.RecipeService;
 import lombok.extern.slf4j.Slf4j;
@@ -33,14 +31,23 @@ import java.util.*;
 @Slf4j
 @Service
 public class RecipeServiceImpl implements RecipeService {
+    private final IngredientAmountDao ingredientAmountDao;
+    private final IngredientDao ingredientDao;
+    private final RecipeScoreDao recipeScoreDao;
     private final RecipeDao recipeDao;
     private final UserDao userDao;
     private final RedisTemplate redisTemplate;
 
-    public RecipeServiceImpl(RecipeDao recipeDao, UserDao userDao, RedisTemplate redisTemplate) {
+    public RecipeServiceImpl(RecipeDao recipeDao, UserDao userDao, RedisTemplate redisTemplate,
+                             RecipeScoreDao recipeScoreDao,
+                             IngredientDao ingredientDao,
+                             IngredientAmountDao ingredientAmountDao) {
         this.recipeDao = recipeDao;
         this.userDao = userDao;
         this.redisTemplate = redisTemplate;
+        this.recipeScoreDao = recipeScoreDao;
+        this.ingredientDao = ingredientDao;
+        this.ingredientAmountDao = ingredientAmountDao;
     }
 
     @Override
@@ -54,11 +61,29 @@ public class RecipeServiceImpl implements RecipeService {
                 .stepContents(publishRecipe.getStepContents())
                 .createTime(LocalDateTime.now())
                 .updateTime(LocalDateTime.now())
+                .score(0.0)
                 .build();
         recipe = recipeDao.save(recipe);
+
         UserPO author = userDao.findById(StpUtil.getLoginIdAsLong()).get();
         author.getPostRecipes().add(recipe.getId());
         userDao.save(author);
+
+        List<String> ingredients = publishRecipe.getIngredients();
+        List<String> amounts = publishRecipe.getAmounts();
+        for (int i = 0 ; i < ingredients.size() ; ++i) {
+            IngredientPO ingredient = IngredientPO.builder().name(ingredients.get(i)).createTime(LocalDateTime.now()).updateTime(LocalDateTime.now()).build();
+            ingredient = ingredientDao.save(ingredient);
+            IngredientAmountPO ingredientAmount = IngredientAmountPO.builder()
+                    .ingredientId(ingredient.getId())
+                    .amount(amounts.get(i))
+                    .recipeId(recipe.getId())
+                    .createTime(LocalDateTime.now())
+                    .updateTime(LocalDateTime.now())
+                    .build();
+            ingredientAmountDao.save(ingredientAmount);
+        }
+
         return recipe.getId();
     }
 
@@ -98,6 +123,13 @@ public class RecipeServiceImpl implements RecipeService {
             }
         }
 
+        Map<String, String> ingredientAmount = new LinkedHashMap<>();
+        List<IngredientAmountPO> ingredientAmountPOS = ingredientAmountDao.getIngredientAmountPOSByRecipeId(recipeId);
+        for (IngredientAmountPO ingredientAmountPO : ingredientAmountPOS) {
+            IngredientPO ingredientPO = ingredientDao.findById(ingredientAmountPO.getIngredientId()).get();
+            ingredientAmount.put(ingredientPO.getName(),ingredientAmountPO.getAmount());
+        }
+
         return RecipeDetailVO.builder()
                 .authorAvatar(author.getAvatar())
                 .authorName(author.getUsername())
@@ -107,6 +139,8 @@ public class RecipeServiceImpl implements RecipeService {
                 .name(recipe.getName())
                 .cover(recipe.getCover())
                 .isFavorite(isFavorite)
+                .score(recipe.getScore())
+                .ingredientAmounts(ingredientAmount)
                 .build();
     }
 
@@ -143,6 +177,24 @@ public class RecipeServiceImpl implements RecipeService {
         }
 
         return Boolean.FALSE.equals(value);
+    }
+
+    @Override
+    public double scoreRecipe(Long recipeId, Double score) {
+        Long userId = StpUtil.getLoginIdAsLong();
+        RecipeScorePO recipeScore = recipeScoreDao.findRecipeScorePOByUserIdAndRecipeId(userId, recipeId);
+        if (recipeScore != null) {
+            throw new BizException(ErrorType.RECIPE_ALREADY_SCORED, "用户已对该菜谱评分");
+        }
+        recipeScore = RecipeScorePO.builder().recipeId(recipeId).userId(userId).score(score)
+                .createTime(LocalDateTime.now()).updateTime(LocalDateTime.now()).build();
+        recipeScoreDao.save(recipeScore);
+        RecipePO recipe = recipeDao.findById(recipeId).get();
+        List<RecipeScorePO> recipeScorePOS = recipeScoreDao.findRecipeScorePOSByRecipeId(recipeId);
+        double averageScore = recipeScorePOS.stream().mapToDouble(RecipeScorePO::getScore).average().getAsDouble();
+        recipe.setScore(averageScore);
+        recipeDao.save(recipe);
+        return averageScore;
     }
 
     private List<RecipeListVO> mapRecipes(List<RecipePO> recipes) {

@@ -31,4 +31,9 @@ public class UserInfoVO {
      * 获赞数
      */
     private Integer getLikedNum;
+
+    /**
+     * 用户签名
+     */
+    private String signature;
 }

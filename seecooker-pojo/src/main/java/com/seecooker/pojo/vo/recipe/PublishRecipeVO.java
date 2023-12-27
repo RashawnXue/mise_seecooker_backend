@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -37,4 +38,16 @@ public class PublishRecipeVO {
      */
     @NotNull
     private List<String> stepContents;
+
+    /**
+     * 所需配料
+     */
+    @NotNull
+    private List<String> ingredients;
+
+    /**
+     * 配料量
+     */
+    @NotNull
+    private List<String> amounts;
 }

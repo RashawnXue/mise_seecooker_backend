@@ -48,6 +48,8 @@ public enum ErrorType {
 
     RECIPE_NOT_EXIST(500002, "Recipe not exist", 400), /*菜谱不存在*/
 
+    RECIPE_ALREADY_SCORED(500003, "Recipe already scored", 400), /*菜谱已评分*/
+
     REDIS_VALUE_NOT_EXIST(600001, "Redis value not exist", 400); /*redis值不存在*/
     /**
      * 状态码

@@ -1,7 +1,6 @@
 package com.seecooker.pojo.po;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -9,10 +8,10 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 /**
- * 配料持久层实体类PO
+ * 配料量PO
  *
  * @author xueruichen
- * @date 2023.12.04
+ * @date 2023.12.27
  */
 @Getter
 @Setter
@@ -20,20 +19,29 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "ingredient")
-public class IngredientPO {
+@Table(name = "ingredient_amount")
+public class IngredientAmountPO {
     /**
-     * 配料id
+     * id
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
-     * 配料名
+     * 菜谱id
      */
-    @NotNull
-    private String name;
+    private Long recipeId;
+
+    /**
+     * 配料id
+     */
+    private Long ingredientId;
+
+    /**
+     * 配料量
+     */
+    private String amount;
 
     /**
      * 数据创建的时间戳
