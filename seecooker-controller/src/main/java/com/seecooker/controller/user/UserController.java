@@ -2,7 +2,10 @@ package com.seecooker.controller.user;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
+import com.seecooker.common.core.exception.BizException;
+import com.seecooker.common.core.exception.ErrorType;
 import com.seecooker.pojo.vo.user.LoginVO;
+import com.seecooker.pojo.vo.user.ModifyPwdVO;
 import com.seecooker.pojo.vo.user.RegisterVO;
 import com.seecooker.pojo.vo.user.UserInfoVO;
 import com.seecooker.common.core.Result;
@@ -96,8 +99,8 @@ public class UserController {
      * @param newname  新用户名
      * @return 响应结果
      */
-    @PostMapping("/modify/username")
-    public Result<Void> modifyUsername(String username,String newname) {
+    @PutMapping("modify/username")
+    public Result<Void> modifyUsername(String username, String newname) {
         StpUtil.checkLogin();
         userService.modifyUsername(username,newname);
         return Result.success();
@@ -105,22 +108,44 @@ public class UserController {
 
     /**
      * 根据用户名修改密码
-     * @param username 用户名
-     * @param password 原密码
-     * @param newPassword 新密码
+     * @param modifyPwdVO 修改密码VO类
      * @return 响应结果
      */
-    @PostMapping("/modify/password")
-    public Result<Void> modifyPassword(String username,String password,String newPassword){
-        userService.modifyPassword(username,password,newPassword);
+    @PutMapping("modify/password")
+    public Result<Void> modifyPassword(@RequestBody @Validated ModifyPwdVO modifyPwdVO){
+        userService.modifyPassword(modifyPwdVO.getUsername(), modifyPwdVO.getPassword(), modifyPwdVO.getNewPassword());
         return Result.success();
     }
 
-    @PostMapping("/modify/avatar")
+    /**
+     * 修改用户头像
+     *
+     * @param username 用户名
+     * @param avatar 用户头像
+     * @return 结果
+     * @throws Exception
+     */
+    @PutMapping("modify/avatar")
     public Result<Void> modifyAvatar(String username,MultipartFile avatar)throws Exception{
         StpUtil.checkLogin();
         String url = userService.uploadAvatar(avatar);
         userService.modifyAvatar(username,url);
+        return Result.success();
+    }
+
+    /**
+     * 修改用户签名
+     *
+     * @param signature 用户签名
+     * @return 响应结果
+     */
+    @PutMapping("modify/signature")
+    public Result<Void> modifySignature(String signature) {
+        StpUtil.checkLogin();
+        if (signature == null) {
+            throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "新签名不能为空");
+        }
+        userService.modifySignature(signature);
         return Result.success();
     }
 }

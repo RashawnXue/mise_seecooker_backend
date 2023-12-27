@@ -76,11 +76,11 @@ public class PostController {
      * @return 响应结果
      */
     @PostMapping("comment")
-    public Result<Long> postComment(@RequestBody @Validated PostCommentVO postComment) {
+    public Result<CommentVO> postComment(@RequestBody @Validated PostCommentVO postComment) {
         // 检查是否登陆，未登陆不能发表评论
         StpUtil.checkLogin();
-        Long commentId = postService.addComment(postComment);
-        return Result.success(commentId);
+        CommentVO comment = postService.addComment(postComment);
+        return Result.success(comment);
     }
 
     /**

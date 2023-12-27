@@ -85,4 +85,11 @@ public interface UserService {
      * @param url 头像url
      */
     void modifyAvatar(String username,String url);
+
+    /**
+     * 修改用户签名
+     *
+     * @param signature 签名
+     */
+    void modifySignature(String signature);
 }

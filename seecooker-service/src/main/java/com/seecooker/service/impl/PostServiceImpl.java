@@ -134,11 +134,12 @@ public class PostServiceImpl implements PostService {
                 .posterAvatar(poster.getAvatar())
                 .like(like) // 未登陆默认为false
                 .likeNum(likeNum)
+                .publishTime(post.get().getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .build();
     }
 
     @Override
-    public Long addComment(PostCommentVO postComment) {
+    public CommentVO addComment(PostCommentVO postComment) {
         CommentPO comment = CommentPO.builder()
                 .postId(postComment.getPostId())
                 .commenterId(StpUtil.getLoginIdAsLong())
@@ -147,7 +148,7 @@ public class PostServiceImpl implements PostService {
                 .updateTime(LocalDateTime.now())
                 .build();
         comment = commentDao.save(comment);
-        return comment.getId();
+        return commentMapper(comment);
     }
 
     @Override
@@ -159,15 +160,7 @@ public class PostServiceImpl implements PostService {
         List<CommentPO> commentPOs = commentDao.findAllByPostId(postId);
         return commentPOs.stream()
                 .sorted(Comparator.comparing(CommentPO::getCreateTime))
-                .map(commentPO -> {
-                    UserPO commenter = userDao.findById(commentPO.getCommenterId()).get();
-                    return CommentVO.builder()
-                            .commenterName(commenter.getUsername())
-                            .commenterAvatar(commenter.getAvatar())
-                            .commentTime(commentPO.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
-                            .content(commentPO.getContent())
-                            .build();
-                })
+                .map(this::commentMapper)
                 .toList();
     }
 
@@ -198,5 +191,15 @@ public class PostServiceImpl implements PostService {
         }
 
         return Boolean.FALSE.equals(value);
+    }
+
+    private CommentVO commentMapper(CommentPO commentPO) {
+        UserPO commenter = userDao.findById(commentPO.getCommenterId()).get();
+        return CommentVO.builder()
+                .commenterName(commenter.getUsername())
+                .commenterAvatar(commenter.getAvatar())
+                .commentTime(commentPO.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                .content(commentPO.getContent())
+                .build();
     }
 }

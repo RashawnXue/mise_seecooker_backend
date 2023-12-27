@@ -4,7 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.aliyuncs.exceptions.ClientException;
 import com.seecooker.pojo.vo.recipe.PublishRecipeVO;
 import com.seecooker.pojo.vo.recipe.RecipeDetailVO;
-import com.seecooker.pojo.vo.recipe.RecipeVO;
+import com.seecooker.pojo.vo.recipe.RecipeListVO;
 
 import com.seecooker.common.core.Result;
 import com.seecooker.common.core.exception.BizException;
@@ -53,6 +53,10 @@ public class RecipeController {
         if (publishRecipe.getStepContents().size() != stepImages.length) {
             throw new BizException(ErrorType.RECIPE_STEP_MATCH_ERROR);
         }
+
+        if (publishRecipe.getIngredients().size() != publishRecipe.getAmounts().size()) {
+            throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "配料与量不匹配");
+        }
         Long id = recipeService.addRecipe(publishRecipe, cover, stepImages);
         return Result.success(id);
     }
@@ -63,8 +67,8 @@ public class RecipeController {
      * @return 响应结果
      */
     @GetMapping("recipes")
-    public Result<List<RecipeVO>> getRecipes() {
-        List<RecipeVO> recipes = recipeService.getRecipes();
+    public Result<List<RecipeListVO>> getRecipes() {
+        List<RecipeListVO> recipes = recipeService.getRecipes();
         return Result.success(recipes);
     }
 
@@ -87,8 +91,8 @@ public class RecipeController {
      * @return 响应结果
      */
     @GetMapping("recipes/search")
-    public Result<List<RecipeVO>> searchRecipes(@RequestParam @NotNull String query) {
-        List<RecipeVO> recipes = recipeService.getRecipesByNameLike(query);
+    public Result<List<RecipeListVO>> searchRecipes(@RequestParam @NotNull String query) {
+        List<RecipeListVO> recipes = recipeService.getRecipesByNameLike(query);
         return Result.success(recipes);
     }
 
@@ -103,6 +107,20 @@ public class RecipeController {
         // 检查是否登陆，未登陆不能收藏
         StpUtil.checkLogin();
         Boolean result = recipeService.favoriteRecipe(recipeId);
+        return Result.success(result);
+    }
+
+    /**
+     * 菜谱评分
+     *
+     * @param recipeId 菜谱id
+     * @param score 评分
+     * @return 当前均分
+     */
+    @PostMapping("recipe/score")
+    public Result<Double> scoreRecipe(Long recipeId, Double score) {
+        StpUtil.checkLogin();
+        double result = recipeService.scoreRecipe(recipeId, score);
         return Result.success(result);
     }
 }

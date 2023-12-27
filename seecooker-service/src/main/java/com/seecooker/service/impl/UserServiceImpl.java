@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -110,6 +109,7 @@ public class UserServiceImpl implements UserService {
                 .postNum(user.get().getPosts().size())
                 // TODO: 添加获赞数
                 .getLikedNum(0)
+                .signature(user.get().getSignature())
                 .build();
     }
 
@@ -127,11 +127,15 @@ public class UserServiceImpl implements UserService {
         if(newUsername==null||newUsername.isEmpty()){
             throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "新用户名不能为空");
         }
+        UserPO user = userDao.findByUsername(newUsername);
+        if (user != null) {
+            throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "该用户名已存在");
+        }
         // 检查相同值
         if(username.equals(newUsername)){
             throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "新用户名不能与原用户名相同");
         }
-        UserPO user = userDao.findByUsername(username);
+        user = userDao.findByUsername(username);
         // 用户名不存在
         if (user == null) {
             log.error("The username does not exist");
@@ -166,6 +170,14 @@ public class UserServiceImpl implements UserService {
         }
         if(avatar==null||avatar.isEmpty())avatar=null;
         user.setAvatar(avatar);
+        userDao.save(user);
+    }
+
+    @Override
+    public void modifySignature(String signature) {
+        Long userId = StpUtil.getLoginIdAsLong();
+        UserPO user = userDao.findById(userId).get();
+        user.setSignature(signature);
         userDao.save(user);
     }
 }

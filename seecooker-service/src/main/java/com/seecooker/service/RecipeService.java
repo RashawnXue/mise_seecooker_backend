@@ -4,7 +4,7 @@ import com.aliyuncs.exceptions.ClientException;
 
 import com.seecooker.pojo.vo.recipe.PublishRecipeVO;
 import com.seecooker.pojo.vo.recipe.RecipeDetailVO;
-import com.seecooker.pojo.vo.recipe.RecipeVO;
+import com.seecooker.pojo.vo.recipe.RecipeListVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ public interface RecipeService {
      *
      * @return 菜谱VO列表
      */
-    List<RecipeVO> getRecipes();
+    List<RecipeListVO> getRecipes();
 
     /**
      * 根据菜谱id获取菜谱细节VO类
@@ -48,7 +48,7 @@ public interface RecipeService {
      * @param query 关键词
      * @return 菜谱列表
      */
-    List<RecipeVO> getRecipesByNameLike(String query);
+    List<RecipeListVO> getRecipesByNameLike(String query);
 
     /**
      * 收藏或取消收藏菜谱
@@ -57,4 +57,13 @@ public interface RecipeService {
      * @return 菜谱状态
      */
     Boolean favoriteRecipe(Long recipeId);
+
+    /**
+     * 菜谱评分
+     *
+     * @param recipeId 菜谱id
+     * @param score 评分
+     * @return 菜谱均分
+     */
+    double scoreRecipe(Long recipeId, Double score);
 }

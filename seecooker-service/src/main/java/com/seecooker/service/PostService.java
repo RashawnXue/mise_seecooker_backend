@@ -46,7 +46,7 @@ public interface PostService {
      * @param postComment 评论相关信息
      * @return 新增评论id
      */
-    Long addComment(PostCommentVO postComment);
+    CommentVO addComment(PostCommentVO postComment);
 
     /**
      * 根据帖子id获取评论

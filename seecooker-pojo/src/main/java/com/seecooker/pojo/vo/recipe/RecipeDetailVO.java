@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 菜谱细节VO类
@@ -55,4 +56,14 @@ public class RecipeDetailVO {
      * 是否收藏，为登陆默认为false
      */
     private Boolean isFavorite;
+
+    /**
+     * 评分
+     */
+    private Double score;
+
+    /**
+     * 配料量
+     */
+    private Map<String, String> ingredientAmounts;
 }

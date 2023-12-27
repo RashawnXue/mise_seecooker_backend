@@ -67,6 +67,11 @@ public class UserPO {
     private List<Long> posts;
 
     /**
+     * 用户签名
+     */
+    private String signature;
+
+    /**
      * 数据创建的时间戳
      */
     @CreationTimestamp
