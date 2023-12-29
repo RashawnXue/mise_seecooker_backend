@@ -43,6 +43,16 @@ public class SaTokenConfigure {
                     SaRouter.match(SaHttpMethod.POST)
                             .match("/recipe/score")
                             .check(r -> StpUtil.checkLogin());
+                    // 社区服务鉴权
+                    SaRouter.match(SaHttpMethod.POST)
+                            .match("/community/**")
+                            .check(r -> StpUtil.checkLogin());
+                    SaRouter.match(SaHttpMethod.PUT)
+                            .match("/community/like/**")
+                            .check(r -> StpUtil.checkLogin());
+                    SaRouter.match(SaHttpMethod.DELETE)
+                            .match("/community/post/**")
+                            .check(r -> StpUtil.checkLogin());
                 })
                 // 异常处理方法：每次setAuth函数出现异常时进入
                 .setError(e -> Result.error(ErrorType.ILLEGAL_ARGUMENTS))

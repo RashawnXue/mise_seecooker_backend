@@ -21,4 +21,7 @@ public interface UserClient {
 
     @PutMapping("feign/user/update/favorite")
     Result<Boolean> updateFavoriteRecipe(@RequestParam Long userId, @RequestParam Long recipeId);
+
+    @PutMapping("feign/user/update/posts")
+    Result<Void> updateUserPosts(@RequestParam Long userId, @RequestParam List<Long> posts);
 }

@@ -71,6 +71,13 @@ public class UserClientServiceImpl implements UserClientService {
         return favorite;
     }
 
+    @Override
+    public void updateUserPosts(Long userId, List<Long> posts) {
+        UserPO user = getUser(userId);
+        user.setPosts(posts);
+        userDao.save(user);
+    }
+
     private UserPO getUser(Long id) {
         Optional<UserPO> userOp = userDao.findById(id);
         if (userOp.isEmpty()) {

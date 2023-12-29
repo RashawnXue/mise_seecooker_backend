@@ -24,7 +24,7 @@ public interface RecipeService {
      * @param stepImages 步骤图
      * @return 添加菜谱id
      */
-    Long addRecipe(PublishRecipeVO publishRecipe, MultipartFile cover, MultipartFile[] stepImages) throws IOException, ClientException;
+    void addRecipe(PublishRecipeVO publishRecipe, MultipartFile cover, MultipartFile[] stepImages) throws IOException, ClientException;
 
     /**
      * 获取菜谱列表

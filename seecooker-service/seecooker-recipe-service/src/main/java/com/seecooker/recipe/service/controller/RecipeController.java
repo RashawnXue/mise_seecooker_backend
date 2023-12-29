@@ -42,7 +42,7 @@ public class RecipeController {
      * @return 响应结果
      */
     @PostMapping("recipe")
-    public Result<Long> publishRecipe(PublishRecipeVO publishRecipe, MultipartFile cover, MultipartFile[] stepImages) throws IOException, ClientException {
+    public Result<Void> publishRecipe(PublishRecipeVO publishRecipe, MultipartFile cover, MultipartFile[] stepImages) throws IOException, ClientException {
         if (stepImages == null) {
             throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "步骤图不能为空");
         }
@@ -54,8 +54,8 @@ public class RecipeController {
         if (publishRecipe.getIngredients().size() != publishRecipe.getAmounts().size()) {
             throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "配料与量不匹配");
         }
-        Long id = recipeService.addRecipe(publishRecipe, cover, stepImages);
-        return Result.success(id);
+        recipeService.addRecipe(publishRecipe, cover, stepImages);
+        return Result.success();
     }
 
     /**

@@ -23,8 +23,6 @@ import com.seecooker.recipe.service.pojo.vo.RecipeListVO;
 import com.seecooker.recipe.service.service.RecipeService;
 import com.seecooker.util.oss.AliOSSUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,7 +57,7 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public Long addRecipe(PublishRecipeVO publishRecipe, MultipartFile cover, MultipartFile[] stepImages) throws IOException, ClientException {
+    public void addRecipe(PublishRecipeVO publishRecipe, MultipartFile cover, MultipartFile[] stepImages) throws IOException, ClientException {
         RecipePO recipe = RecipePO.builder()
                 .name(publishRecipe.getName())
                 .introduction(publishRecipe.getIntroduction())
@@ -74,14 +72,14 @@ public class RecipeServiceImpl implements RecipeService {
         recipe = recipeDao.save(recipe);
 
         Result<UserDTO> getUserResult = userClient.getUserById(StpUtil.getLoginIdAsLong());
-        if (!getUserResult.isSuccess()) {
+        if (getUserResult.fail()) {
             throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
         }
         UserDTO author = getUserResult.getData();
         author.getPostRecipes().add(recipe.getId());
 
         Result<Void> updateRecipesResult = userClient.updatePostRecipes(StpUtil.getLoginIdAsLong(), author.getPostRecipes());
-        if (!updateRecipesResult.isSuccess()) {
+        if (updateRecipesResult.fail()) {
             throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
         }
 
@@ -99,8 +97,6 @@ public class RecipeServiceImpl implements RecipeService {
                     .build();
             ingredientAmountDao.save(ingredientAmount);
         }
-
-        return recipe.getId();
     }
 
     @Override
@@ -117,7 +113,7 @@ public class RecipeServiceImpl implements RecipeService {
         boolean isLogin = StpUtil.isLogin();
 
         Result<UserDTO> authorResult = userClient.getUserById(recipe.getAuthorId());
-        if (!authorResult.isSuccess()) {
+        if (authorResult.fail()) {
             throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
         }
         UserDTO author = authorResult.getData();
@@ -157,7 +153,7 @@ public class RecipeServiceImpl implements RecipeService {
     public Boolean favoriteRecipe(Long recipeId) {
         Long userId = StpUtil.getLoginIdAsLong();
         Result<Boolean> result = userClient.updateFavoriteRecipe(userId, recipeId);
-        if (!result.isSuccess()) {
+        if (result.fail()) {
             throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
         }
         return result.getData();
@@ -187,7 +183,7 @@ public class RecipeServiceImpl implements RecipeService {
         if (isLogin) {
             Long userId = StpUtil.getLoginIdAsLong();
             Result<UserDTO> userResult = userClient.getUserById(userId);
-            if (!userResult.isSuccess()) {
+            if (userResult.fail()) {
                 throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
             }
             UserDTO user = userResult.getData();
@@ -198,7 +194,7 @@ public class RecipeServiceImpl implements RecipeService {
         return recipes.stream().sorted(Comparator.comparing(RecipePO::getCreateTime))
                 .map(recipePO -> {
                     Result<UserDTO> authorResult = userClient.getUserById(recipePO.getAuthorId());
-                    if (!authorResult.isSuccess()) {
+                    if (authorResult.fail()) {
                         throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
                     }
                     UserDTO author = authorResult.getData();

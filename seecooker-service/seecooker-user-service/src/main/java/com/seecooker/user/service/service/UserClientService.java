@@ -35,4 +35,12 @@ public interface UserClientService {
      * @return 用户是否收藏菜谱
      */
     Boolean updateFavoriteRecipe(Long userId, Long recipeId);
+
+    /**
+     * 更新发布的帖子
+     *
+     * @param userId 用户id
+     * @param posts 修改后的帖子id
+     */
+    void updateUserPosts(Long userId, List<Long> posts);
 }

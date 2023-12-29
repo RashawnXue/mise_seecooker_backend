@@ -43,4 +43,10 @@ public class UserFeignServer {
         Boolean res = userService.updateFavoriteRecipe(userId, recipeId);
         return Result.success(res);
     }
+
+    @PutMapping("feign/user/update/posts")
+    Result<Void> updateUserPosts(@RequestParam Long userId, @RequestParam List<Long> posts) {
+        userService.updateUserPosts(userId, posts);
+        return Result.success();
+    }
 }

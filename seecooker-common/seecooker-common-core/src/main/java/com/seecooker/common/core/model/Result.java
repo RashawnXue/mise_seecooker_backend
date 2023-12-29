@@ -41,8 +41,8 @@ public class Result<T> {
         this.httpCode = httpCode;
     }
 
-    public boolean isSuccess() {
-        return this.code == 0;
+    public boolean fail() {
+        return this.code != 0;
     }
 
     public static <T> Result<T> success(T data) {
