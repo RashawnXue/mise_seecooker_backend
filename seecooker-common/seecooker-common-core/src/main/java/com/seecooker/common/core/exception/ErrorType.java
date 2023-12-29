@@ -27,6 +27,9 @@ public enum ErrorType {
 
     NOT_FOUND(100005, "Not Found", 404),/* 服务端无法找到客户端请求的资源 */
 
+    SERVER_ERROR(100006, "Server error", 400), /* 服务器内部错误 */
+
+    OPEN_FEIGN_API_ERROR(100007, "Open feign api error", 400), /* feign api调用错误 */
     /**
      * 业务相关错误类型
      */

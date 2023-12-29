@@ -6,67 +6,49 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.2</version>
+        <version>3.0.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>com.seecooker</groupId>
     <artifactId>seecooker</artifactId>
-    <version>0.0.1</version>
+    <version>0.2.0</version>
     <name>seecooker</name>
     <description>seecooker_backend</description>
 
     <modules>
         <module>seecooker-common</module>
-        <module>seecooker-pojo</module>
-        <module>seecooker-oss</module>
-        <module>seecooker-dao</module>
         <module>seecooker-service</module>
-        <module>seecooker-controller</module>
-        <module>seecooker-web</module>
+        <module>seecooker-feign-api</module>
+        <module>seecooker-gateway</module>
+        <module>seecooker-util</module>
     </modules>
 
     <packaging>pom</packaging>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.seecooker</groupId>
-                <artifactId>seecooker-web</artifactId>
-                <version>0.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.seecooker</groupId>
-                <artifactId>seecooker-common</artifactId>
-                <version>0.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.seecooker</groupId>
-                <artifactId>seecooker-pojo</artifactId>
-                <version>0.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.seecooker</groupId>
-                <artifactId>seecooker-oss</artifactId>
-                <version>0.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.seecooker</groupId>
-                <artifactId>seecooker-dao</artifactId>
-                <version>0.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.seecooker</groupId>
-                <artifactId>seecooker-service</artifactId>
-                <version>0.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.seecooker</groupId>
-                <artifactId>seecooker-controller</artifactId>
-                <version>0.0.1</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <properties>
+        <seecooker.version>0.2.0</seecooker.version>
+        <!-- 项目源码及编译输出的编码 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- 项目编译JDK版本 -->
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <!-- 依赖包版本管理 -->
+        <spring.boot.starter.parent.version>3.0.5</spring.boot.starter.parent.version>
+        <spring.boot.version>3.0.5</spring.boot.version>
+        <spring.boot.web.version>3.1.2</spring.boot.web.version>
+        <spring.cloud.version>2022.0.3</spring.cloud.version>
+        <alibaba.cloud>2022.0.0.0</alibaba.cloud>
+        <satoken.version>1.37.0</satoken.version>
+        <jackson.version>2.15.3</jackson.version>
+        <hypersistence.version>3.6.0</hypersistence.version>
+        <aliyun.oss.version>3.15.1</aliyun.oss.version>
+        <jaxb.api.version>2.3.1</jaxb.api.version>
+        <activation.version>1.1.1</activation.version>
+        <jaxb.runtime.version>2.3.3</jaxb.runtime.version>
+        <netty.dns.macos.version>4.1.76.Final</netty.dns.macos.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -75,9 +57,173 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <artifactId>seecooker-feign-api</artifactId>
+                <groupId>com.seecooker</groupId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>seecooker-common</artifactId>
+                <groupId>com.seecooker</groupId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <!-- 排除默认的logback日志，使用log4j-->
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                </exclusions>
+                <version>${spring.boot.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                </exclusions>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <!--Apache 工具包包-->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring.cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!--spring cloud alibaba-->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${alibaba.cloud}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Sa-Token 权限认证（Reactor响应式集成）, 在线文档：https://sa-token.cc -->
+            <dependency>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-reactor-spring-boot3-starter</artifactId>
+                <version>${satoken.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-spring-boot3-starter</artifactId>
+                <version>${satoken.version}</version>
+            </dependency>
+            <!-- Sa-Token 整合 Redis （使用 jackson 序列化方式） -->
+            <dependency>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-redis-jackson</artifactId>
+                <version>${satoken.version}</version>
+            </dependency>
+            <!-- 持久层依赖 -->
+            <dependency>
+                <groupId>io.hypersistence</groupId>
+                <artifactId>hypersistence-utils-hibernate-60</artifactId>
+                <version>${hypersistence.version}</version>
+            </dependency>
+            <!-- 阿里云oss相关依赖 -->
+            <dependency>
+                <groupId>com.aliyun.oss</groupId>
+                <artifactId>aliyun-sdk-oss</artifactId>
+                <version>${aliyun.oss.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.activation</groupId>
+                <artifactId>activation</artifactId>
+                <version>${activation.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${jaxb.runtime.version}</version>
+            </dependency>
+            <!-- 项目依赖 -->
+            <dependency>
+                <groupId>com.seecooker</groupId>
+                <artifactId>seecooker-common-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.seecooker</groupId>
+                <artifactId>seecooker-common-redis</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.seecooker</groupId>
+                <artifactId>seecooker-feign-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.seecooker</groupId>
+                <artifactId>seecooker-app-gateway</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.seecooker</groupId>
+                <artifactId>seecooker-user-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.seecooker</groupId>
+                <artifactId>seecooker-recipe-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.seecooker</groupId>
+                <artifactId>seecooker-community-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.seecooker</groupId>
+                <artifactId>seecooker-util-oss</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-resolver-dns-native-macos</artifactId>
+                <version>${netty.dns.macos.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
