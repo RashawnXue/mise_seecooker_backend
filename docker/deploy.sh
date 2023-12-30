@@ -7,10 +7,10 @@ usage() {
 }
 
 # shellcheck disable=SC2120
-run() {
-  sshpass -p "$5" scp -o StrictHostKeyChecking=no "$1" "$4":~
-  sshpass -p "$5" scp -o StrictHostKeyChecking=no "$2" "$4":~
-  sshpass -p "$5" ssh -o StrictHostKeyChecking=no "$4" "docker build -f Dockerfile --build-arg port=$6 -t $3 .;\
+echo "$1, $2, $3, $4, $5, $6, $7, $8"
+sshpass -p "$5" scp -o StrictHostKeyChecking=no "$1" "$4":~
+sshpass -p "$5" scp -o StrictHostKeyChecking=no "$2" "$4":~
+sshpass -p "$5" ssh -o StrictHostKeyChecking=no "$4" "docker build -f Dockerfile --build-arg port=$6 -t $3 .;\
    echo "build image "$3" success";\
    docker stop $3;\
    echo "stop image "$3" success";\
@@ -21,7 +21,3 @@ run() {
     -e OSS_ACCESS_KEY_ID=$7\
     -e OSS_ACCESS_KEY_SECRET=$8 $3;\
    echo "deploy container succeed";"
-}
-
-# shellcheck disable=SC2119
-run
