@@ -28,5 +28,4 @@
             <artifactId>seecooker-common-core</artifactId>
         </dependency>
     </dependencies>
-
 </project>

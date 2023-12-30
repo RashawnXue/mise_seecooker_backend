@@ -73,7 +73,7 @@ public class PostServiceImpl implements PostService {
         UserDTO poster = posterResult.getData();
         poster.getPosts().add(postId);
 
-        Result<Void> saveResult = userClient.updateUserPosts(postId, poster.getPosts());
+        Result<Void> saveResult = userClient.updateUserPosts(posterId, poster.getPosts());
         if (saveResult.fail()) {
             throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
         }

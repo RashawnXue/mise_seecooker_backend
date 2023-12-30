@@ -27,7 +27,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Result<Void> handException(Exception e) {
         log.error(e.getMessage());
-        e.printStackTrace();
         return Result.error(ErrorType.SERVER_ERROR, e.getMessage());
     }
 
