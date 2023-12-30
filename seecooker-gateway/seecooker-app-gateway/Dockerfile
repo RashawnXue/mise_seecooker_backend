@@ -6,6 +6,6 @@ ARG port=9000
 
 WORKDIR /app
 
-COPY ./../../seecooker-gateway/seecooker-app-gateway/target/seecooker-app-gateway-0.2.0.jar /app
+COPY target/seecooker-app-gateway-0.2.0.jar /app
 
 ENTRYPOINT ["java", "-jar", "seecooker-app-gateway-0.2.0.jar", "--server.port=${port}", "--spring.profiles.active=prod"]
