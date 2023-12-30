@@ -5,31 +5,22 @@
     <parent>
         <groupId>com.seecooker</groupId>
         <artifactId>seecooker</artifactId>
-        <version>0.0.1</version>
+        <version>0.2.0</version>
     </parent>
     <artifactId>seecooker-common</artifactId>
-    <version>0.0.1</version>
+    <version>0.2.0</version>
     <name>seecooker-common</name>
     <description>seecooker-common</description>
-    <packaging>pom</packaging>
 
     <modules>
         <module>seecooker-common-core</module>
         <module>seecooker-common-redis</module>
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.seecooker</groupId>
-                <artifactId>seecooker-common-core</artifactId>
-                <version>0.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.seecooker</groupId>
-                <artifactId>seecooker-common-redis</artifactId>
-                <version>0.0.1</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <packaging>pom</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+    </dependencies>
 </project>
