@@ -28,6 +28,7 @@ deploy-job:      # This job runs in the deployment stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   environment: production
   script:
+    - tree .
     - export MAVEN_HOME=/lib/maven/apache-maven-3.9.6
     - export PATH=${MAVEN_HOME}/bin:${PATH}
     - chmod +x docker/deploy.sh
