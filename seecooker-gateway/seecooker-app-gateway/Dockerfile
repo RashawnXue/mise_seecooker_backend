@@ -1,4 +1,4 @@
-FROM openjdk:latest
+FROM openjdk:17-jdk-alpine
 
 LABEL authors="rashawn"
 
