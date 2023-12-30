@@ -21,7 +21,11 @@ build-job:       # This job runs in the build stage, which runs first.
     - mvn -B clean package -Dmaven.test.skip=true -Dspring.profiles.active=prod
     - echo "Compile complete."
   artifacts:
-    untracked: true
+    paths:
+      - seecooker-gateway/seecooker-app-gateway/target
+      - seecooker-service/seecooker-community-service/target
+      - seecooker-service/seecooker-recipe-service/target
+      - seecooker-service/seecooker-user-service/target
   allow_failure: false
 
 deploy-job:      # This job runs in the deployment stage.
