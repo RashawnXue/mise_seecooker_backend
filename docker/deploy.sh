@@ -10,7 +10,8 @@ usage() {
 echo "$1, $2, $3, $4, $5, $6, $7, $8"
 sshpass -p "$5" scp -o StrictHostKeyChecking=no "$1" "$4":~
 sshpass -p "$5" scp -o StrictHostKeyChecking=no "$2" "$4":~
-sshpass -p "$5" ssh -o StrictHostKeyChecking=no "$4" "docker build -f Dockerfile --build-arg port=$6 -t $3 .;\
+sshpass -p "$5" ssh -o StrictHostKeyChecking=no "$4" \
+  "docker build -f Dockerfile --build-arg port=$6 -t $3 .;\
    echo "build image "$3" success";\
    docker stop $3;\
    echo "stop image "$3" success";\
