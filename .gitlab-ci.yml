@@ -22,10 +22,10 @@ build-job:       # This job runs in the build stage, which runs first.
     - echo "Compile complete."
   artifacts:
     paths:
-      - seecooker-gateway/seecooker-app-gateway/target
-      - seecooker-service/seecooker-community-service/target
-      - seecooker-service/seecooker-recipe-service/target
-      - seecooker-service/seecooker-user-service/target
+      - seecooker-gateway/seecooker-app-gateway/target/
+      - seecooker-service/seecooker-community-service/target/
+      - seecooker-service/seecooker-recipe-service/target/
+      - seecooker-service/seecooker-user-service/target/
   allow_failure: false
 
 deploy-job:      # This job runs in the deployment stage.
