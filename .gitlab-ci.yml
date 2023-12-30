@@ -6,6 +6,8 @@ stages:          # List of stages for jobs, and their order of execution
 test-job:
   stage: test
   script:
+    - export MAVEN_HOME=/lib/maven/apache-maven-3.9.6
+    - export PATH=${MAVEN_HOME}/bin:${PATH}
     - echo "Running unit tests..."
     - mvn -B -D clean test -Dspring.profiles.active=test
 
