@@ -9,6 +9,7 @@ spring:
     nacos:
       discovery:
         server-addr: 124.222.18.205:8848
+        ip: 43.143.217.76
       config:
         server-addr: 124.222.18.205:8848
         file-extension: yaml
