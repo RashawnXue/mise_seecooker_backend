@@ -1,0 +1,47 @@
+stages:          # List of stages for jobs, and their order of execution
+  - test
+  - build
+  - deploy
+
+test-job:
+  stage: test
+  script:
+    - export MAVEN_HOME=/lib/maven/apache-maven-3.9.6
+    - export PATH=${MAVEN_HOME}/bin:${PATH}
+    - echo "Running unit tests..."
+    - mvn -B -D clean test -Dspring.profiles.active=test
+
+build-job:       # This job runs in the build stage, which runs first.
+  stage: build
+  script:
+    - export MAVEN_HOME=/lib/maven/apache-maven-3.9.6
+    - export PATH=${MAVEN_HOME}/bin:${PATH}
+    - echo "Compiling the code..."
+  artifacts:
+    paths:
+      - seecooker-gateway/seecooker-app-gateway/target/
+      - seecooker-service/seecooker-community-service/target/
+      - seecooker-service/seecooker-recipe-service/target/
+      - seecooker-service/seecooker-user-service/target/
+  allow_failure: false
+
+deploy-job:      # This job runs in the deployment stage.
+  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+  dependencies:
+    - build-job
+  script:
+    - export MAVEN_HOME=/lib/maven/apache-maven-3.9.6
+    - export PATH=${MAVEN_HOME}/bin:${PATH}
+    - echo "building....."
+    - mvn -B clean package -Dmaven.test.skip=true -Dspring.profiles.active=prod
+    - echo "Compile complete."
+    - chmod +x docker/deploy.sh
+    - docker/deploy.sh seecooker-gateway/seecooker-app-gateway/target/seecooker-app-gateway-0.2.0.jar seecooker-gateway/seecooker-app-gateway/Dockerfile seecooker-app-gateway-instance1 root@$SERVER5_IP $SERVER5_PASSWORD 9000 $OSS_ACCESS_KEY_ID $OSS_ACCESS_KEY_SECRET
+    - docker/deploy.sh seecooker-service/seecooker-user-service/target/seecooker-user-service-0.2.0.jar seecooker-service/seecooker-user-service/Dockerfile seecooker-user-service-instance1 ubuntu@$SERVER1_IP $SERVER1_PASSWORD 9500 $OSS_ACCESS_KEY_ID $OSS_ACCESS_KEY_SECRET
+    - docker/deploy.sh seecooker-service/seecooker-recipe-service/target/seecooker-recipe-service-0.2.0.jar seecooker-service/seecooker-recipe-service/Dockerfile seecooker-recipe-service-instance1 root@$SERVER2_IP $SERVER2_PASSWORD 9510 $OSS_ACCESS_KEY_ID $OSS_ACCESS_KEY_SECRET
+    - docker/deploy.sh seecooker-service/seecooker-community-service/target/seecooker-community-service-0.2.0.jar seecooker-service/seecooker-community-service/Dockerfile seecooker-community-service-instance1 root@$SERVER6_IP $SERVER6_PASSWORD 9520 $OSS_ACCESS_KEY_ID $OSS_ACCESS_KEY_SECRET
+    - docker/deploy.sh seecooker-gateway/seecooker-app-gateway/target/seecooker-app-gateway-0.2.0.jar seecooker-gateway/seecooker-app-gateway/Dockerfile seecooker-app-gateway-instance2 root@$SERVER5_IP $SERVER5_PASSWORD 9001 $OSS_ACCESS_KEY_ID $OSS_ACCESS_KEY_SECRET
+    - docker/deploy.sh seecooker-service/seecooker-user-service/target/seecooker-user-service-0.2.0.jar seecooker-service/seecooker-user-service/Dockerfile seecooker-user-service-instance2 ubuntu@$SERVER1_IP $SERVER1_PASSWORD 9501 $OSS_ACCESS_KEY_ID $OSS_ACCESS_KEY_SECRET
+    - docker/deploy.sh seecooker-service/seecooker-recipe-service/target/seecooker-recipe-service-0.2.0.jar seecooker-service/seecooker-recipe-service/Dockerfile seecooker-recipe-service-instance2 root@$SERVER2_IP $SERVER2_PASSWORD 9511 $OSS_ACCESS_KEY_ID $OSS_ACCESS_KEY_SECRET
+    - docker/deploy.sh seecooker-service/seecooker-community-service/target/seecooker-community-service-0.2.0.jar seecooker-service/seecooker-community-service/Dockerfile seecooker-community-service-instance2 root@$SERVER6_IP $SERVER6_PASSWORD 9521 $OSS_ACCESS_KEY_ID $OSS_ACCESS_KEY_SECRET
+    - echo "Application successfully deployed."

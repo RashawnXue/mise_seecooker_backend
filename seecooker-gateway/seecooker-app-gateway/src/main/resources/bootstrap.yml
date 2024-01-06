@@ -1,0 +1,19 @@
+server:
+  port: 9000
+spring:
+  profiles:
+    active: dev
+  application:
+    name: seecooker-app-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 124.222.18.205:8848
+        namespace: public
+        ip: 124.223.39.48
+      config:
+        server-addr: 124.222.18.205:8848
+        file-extension: yaml
+        group: ${spring.profiles.active}
+  config:
+    import: optional:nacos:${spring.application.name}-${spring.profiles.active}
