@@ -36,12 +36,6 @@ public class CommentPO {
     private Long commenterId;
 
     /**
-     * 帖子id
-     */
-    @NotNull
-    private Long postId;
-
-    /**
      * 评论内容
      */
     @NotNull

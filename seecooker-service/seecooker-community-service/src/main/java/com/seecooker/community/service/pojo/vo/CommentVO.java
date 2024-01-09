@@ -15,6 +15,11 @@ import lombok.Setter;
 @Builder
 public class CommentVO {
     /**
+     * 评论者id
+     */
+    private Long commenterId;
+
+    /**
      * 评论者头像url
      */
     private String commenterAvatar;

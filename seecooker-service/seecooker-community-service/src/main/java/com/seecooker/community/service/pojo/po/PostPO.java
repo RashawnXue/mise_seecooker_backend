@@ -61,6 +61,11 @@ public class PostPO {
     private List<Long> likeUserIdList;
 
     /**
+     * 评论id列表
+     */
+    private List<Long> commentIdList;
+
+    /**
      * 数据创建的时间戳
      */
     @CreationTimestamp

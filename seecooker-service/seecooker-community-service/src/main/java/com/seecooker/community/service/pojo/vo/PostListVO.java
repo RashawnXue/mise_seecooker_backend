@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class PostVO {
+public class PostListVO {
     /**
      * 帖子id
      */
@@ -30,6 +30,11 @@ public class PostVO {
     private String title;
 
     /**
+     * 发布者id
+     */
+    private Long posterId;
+
+    /**
      * 发布者头像
      */
     private String posterAvatar;
@@ -38,4 +43,24 @@ public class PostVO {
      * 发布者用户名
      */
     private String posterName;
+
+    /**
+     * 发布时间
+     */
+    private String publishTime;
+
+    /**
+     * 用户是否点赞
+     */
+    private Boolean like;
+
+    /**
+     * 点赞数
+     */
+    private Integer likeNum;
+
+    /**
+     * 评论数
+     */
+    private Integer commentNum;
 }
