@@ -7,6 +7,7 @@ import com.seecooker.common.core.exception.BizException;
 import com.seecooker.common.core.exception.ErrorType;
 import com.seecooker.common.core.model.Result;
 import com.seecooker.common.core.model.dto.user.UserDTO;
+import com.seecooker.common.redis.enums.RedisKey;
 import com.seecooker.feign.user.UserClient;
 import com.seecooker.recipe.service.dao.IngredientDao;
 import com.seecooker.recipe.service.dao.RecipeDao;
@@ -19,6 +20,7 @@ import com.seecooker.recipe.service.service.RecipeService;
 import com.seecooker.util.oss.AliOSSUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 菜谱业务服务层实现类
@@ -40,16 +43,18 @@ public class RecipeServiceImpl implements RecipeService {
     private final RecipeScoreDao recipeScoreDao;
     private final RecipeDao recipeDao;
     private final UserClient userClient;
-    private final int pageSize = 8;
+    private final RedisTemplate redisTemplate;
+    private static final int PAGE_SIZE = 8;
 
     public RecipeServiceImpl(RecipeDao recipeDao,
                              RecipeScoreDao recipeScoreDao,
                              IngredientDao ingredientDao,
-                             UserClient userClient) {
+                             UserClient userClient, RedisTemplate redisTemplate) {
         this.recipeDao = recipeDao;
         this.recipeScoreDao = recipeScoreDao;
         this.ingredientDao = ingredientDao;
         this.userClient = userClient;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -124,6 +129,7 @@ public class RecipeServiceImpl implements RecipeService {
                 .score(score)
                 .scored(isScored)
                 .ingredientAmounts(ingredientAmount)
+                .publishTime(recipe.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .build();
     }
 
@@ -146,7 +152,7 @@ public class RecipeServiceImpl implements RecipeService {
         }
         RecipePO recipe = recipeOp.get();
         // 更新收藏数据
-        recipe.setFavoriteNum(recipe.getFavoriteNum() + 1);
+        recipe.setFavoriteNum(recipe.getFavoriteNum() + (result.getData() ? 1 : -1));
         recipeDao.save(recipe);
         return result.getData();
     }
@@ -171,7 +177,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public List<RecipeListVO> getRecipesByPage(Integer pageNo) {
-        List<RecipePO> recipes = recipeDao.findAll(PageRequest.of(pageNo, pageSize)).stream().toList();
+        List<RecipePO> recipes = recipeDao.findAll(PageRequest.of(pageNo, PAGE_SIZE)).stream().toList();
         return mapRecipes(recipes);
     }
 
@@ -194,19 +200,24 @@ public class RecipeServiceImpl implements RecipeService {
         List<ExploreVO> result = new ArrayList<>();
         for (RecipePO recipe : recipes) {
             int cnt = 0;
+            boolean favorite = false;
             for (String ingredient : recipe.getIngredientList()) {
                 if (ingredientSet.contains(ingredient)) {
                     cnt++;
                 }
             }
+            if (StpUtil.isLogin()) {
+                UserDTO user = getUser(StpUtil.getLoginIdAsLong());
+                favorite = user.getFavoriteRecipes().contains(recipe.getId());
+            }
             if (cnt == ingredientSet.size()) {
                 UserDTO author = getUser(recipe.getAuthorId());
-                // TODO：此处可用缓存优化
                 result.add(ExploreVO.builder()
                                 .recipeId(recipe.getId())
                                 .name(author.getUsername())
                                 .authorAvatar(author.getAvatar())
                                 .introduction(recipe.getIntroduction())
+                                .favorite(favorite)
                                 .cover(recipe.getCover())
                                 .build());
             }
@@ -217,17 +228,23 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public List<IngredientVO> getIngredients() {
         Map<String, IngredientVO> map = new LinkedHashMap<>();
-        List<IngredientPO> ingredients = ingredientDao.findAll();
-        for (IngredientPO ingredient : ingredients) {
-            if (map.containsKey(ingredient.getCategory())) {
-                IngredientVO names = map.get(ingredient.getCategory());
-                names.getName().add(ingredient.getName());
-            } else {
-                map.put(ingredient.getCategory(), IngredientVO.builder()
-                                .category(ingredient.getCategory())
-                                .name(new ArrayList<>(Arrays.asList(ingredient.getName())))
-                                .build());
+        if (redisTemplate.hasKey(RedisKey.INGREDIENT.getKey())) {
+            map = (Map<String, IngredientVO>) redisTemplate.opsForValue().get(RedisKey.INGREDIENT.getKey());
+        } else {
+            List<IngredientPO> ingredients = ingredientDao.findAll();
+            for (IngredientPO ingredient : ingredients) {
+                if (map.containsKey(ingredient.getCategory())) {
+                    IngredientVO names = map.get(ingredient.getCategory());
+                    names.getName().add(ingredient.getName());
+                } else {
+                    map.put(ingredient.getCategory(), IngredientVO.builder()
+                            .category(ingredient.getCategory())
+                            .name(new ArrayList<>(Arrays.asList(ingredient.getName())))
+                            .build());
+                }
             }
+            redisTemplate.opsForValue().set(RedisKey.INGREDIENT.getKey(), map, 1000*60*60L, TimeUnit.MILLISECONDS);
+//            redisTemplate.opsForValue().set("test", IngredientVO.builder().build(), 1000*60*60L, TimeUnit.MILLISECONDS);
         }
         return new ArrayList<>(map.values());
     }

@@ -43,4 +43,9 @@ public class ExploreVO {
      * 作者头像
      */
     private String authorAvatar;
+
+    /**
+     * 是否收藏
+     */
+    private Boolean favorite;
 }

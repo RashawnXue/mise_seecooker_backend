@@ -151,13 +151,13 @@ public class RecipeController {
     }
 
     /**
-     * 探索菜谱
+     * 发现菜谱
      *
      * @param ingredients 配料
      * @return 响应结果
      */
     @GetMapping("recipe/explore")
-    public Result<List<ExploreVO>> explore(@RequestBody @NotNull List<String> ingredients) {
+    public Result<List<ExploreVO>> explore(@RequestParam @NotNull List<String> ingredients) {
         if (ingredients.isEmpty()) {
             throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "配料不能为空");
         }
