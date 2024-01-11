@@ -102,7 +102,8 @@ public class RecipeServiceImpl implements RecipeService {
         UserDTO author = getUser(recipe.getAuthorId());
 
         if (isLogin) {
-            isFavorite = author.getFavoriteRecipes().contains(recipeId);
+            UserDTO user = getUser(StpUtil.getLoginIdAsLong());
+            isFavorite = user.getFavoriteRecipes().contains(recipeId);
             RecipeScorePO recipeScore = recipeScoreDao.findRecipeScorePOByUserIdAndRecipeId(StpUtil.getLoginIdAsLong(), recipeId);
             if (recipeScore != null) {
                 isScored = true;
