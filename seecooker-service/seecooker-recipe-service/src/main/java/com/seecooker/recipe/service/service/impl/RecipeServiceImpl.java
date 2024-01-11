@@ -216,6 +216,7 @@ public class RecipeServiceImpl implements RecipeService {
                                 .recipeId(recipe.getId())
                                 .name(author.getUsername())
                                 .authorAvatar(author.getAvatar())
+                                .authorName(author.getUsername())
                                 .introduction(recipe.getIntroduction())
                                 .favorite(favorite)
                                 .cover(recipe.getCover())
