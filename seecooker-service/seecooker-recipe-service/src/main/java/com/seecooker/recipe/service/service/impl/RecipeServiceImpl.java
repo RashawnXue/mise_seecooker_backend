@@ -214,7 +214,7 @@ public class RecipeServiceImpl implements RecipeService {
                 UserDTO author = getUser(recipe.getAuthorId());
                 result.add(ExploreVO.builder()
                                 .recipeId(recipe.getId())
-                                .name(author.getUsername())
+                                .name(recipe.getName())
                                 .authorAvatar(author.getAvatar())
                                 .authorName(author.getUsername())
                                 .introduction(recipe.getIntroduction())
@@ -245,7 +245,6 @@ public class RecipeServiceImpl implements RecipeService {
                 }
             }
             redisTemplate.opsForValue().set(RedisKey.INGREDIENT.getKey(), map, 1000*60*60L, TimeUnit.MILLISECONDS);
-//            redisTemplate.opsForValue().set("test", IngredientVO.builder().build(), 1000*60*60L, TimeUnit.MILLISECONDS);
         }
         return new ArrayList<>(map.values());
     }

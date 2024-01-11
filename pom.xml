@@ -50,6 +50,7 @@
         <netty.dns.macos.version>4.1.76.Final</netty.dns.macos.version>
         <spark.version>1.0.0</spark.version>
         <fastjson.version>2.0.43</fastjson.version>
+        <rabbit.version>2.3.10</rabbit.version>
     </properties>
 
     <dependencies>
@@ -230,6 +231,11 @@
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
                 <version>${fastjson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.amqp</groupId>
+                <artifactId>spring-rabbit</artifactId>
+                <version>${rabbit.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

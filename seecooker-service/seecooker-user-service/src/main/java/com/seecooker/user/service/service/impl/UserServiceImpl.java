@@ -6,7 +6,6 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.seecooker.common.core.enums.ImageType;
 import com.seecooker.common.core.exception.BizException;
 import com.seecooker.common.core.exception.ErrorType;
-import com.seecooker.common.core.model.dto.user.UserDTO;
 import com.seecooker.user.service.dao.UserDao;
 import com.seecooker.user.service.pojo.po.UserPO;
 import com.seecooker.user.service.pojo.vo.UserInfoVO;
@@ -14,6 +13,7 @@ import com.seecooker.user.service.service.UserService;
 import com.seecooker.util.oss.AliOSSUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,10 +33,11 @@ import java.util.Optional;
 @Transactional
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
-    private final static String DEFAULT_AVATAR = "https://dummyimage.com/100x100";
-
-    public UserServiceImpl(UserDao userDao) {
+    private static final String DEFAULT_AVATAR = "https://dummyimage.com/100x100";
+    private final RabbitTemplate rabbitTemplate;
+    public UserServiceImpl(UserDao userDao, RabbitTemplate rabbitTemplate) {
         this.userDao = userDao;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Override
@@ -179,8 +180,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void modifySignature(String signature) {
         Long userId = StpUtil.getLoginIdAsLong();
-        UserPO user = userDao.findById(userId).get();
-        user.setSignature(signature);
-        userDao.save(user);
+        rabbitTemplate.convertAndSend("modifySignature", userId+":"+signature);
     }
 }
