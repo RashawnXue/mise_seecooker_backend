@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.7</version>
+        <version>3.1.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -48,6 +48,9 @@
         <activation.version>1.1.1</activation.version>
         <jaxb.runtime.version>2.3.3</jaxb.runtime.version>
         <netty.dns.macos.version>4.1.76.Final</netty.dns.macos.version>
+        <spark.version>1.0.0</spark.version>
+        <fastjson.version>2.0.43</fastjson.version>
+        <rabbit.version>2.3.10</rabbit.version>
     </properties>
 
     <dependencies>
@@ -218,6 +221,21 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-resolver-dns-native-macos</artifactId>
                 <version>${netty.dns.macos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.unfbx</groupId>
+                <artifactId>SparkDesk-Java</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.amqp</groupId>
+                <artifactId>spring-rabbit</artifactId>
+                <version>${rabbit.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -16,6 +16,10 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>com.seecooker</groupId>
+            <artifactId>seecooker-common-redis</artifactId>
+        </dependency>
+        <dependency>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-spring-boot3-starter</artifactId>
         </dependency>
@@ -27,6 +31,16 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>2.0.43</version>
+        </dependency>
+        <dependency>
+            <groupId>com.unfbx</groupId>
+            <artifactId>SparkDesk-Java</artifactId>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>

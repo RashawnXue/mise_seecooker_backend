@@ -43,6 +43,9 @@ public class SaTokenConfigure {
                     SaRouter.match(SaHttpMethod.POST)
                             .match("/recipe/score")
                             .check(r -> StpUtil.checkLogin());
+                    SaRouter.match(SaHttpMethod.GET)
+                            .match("/recipe/favorites/**")
+                            .check(r -> StpUtil.checkLogin());
                     // 社区服务鉴权
                     SaRouter.match(SaHttpMethod.POST)
                             .match("/community/**")
@@ -52,6 +55,9 @@ public class SaTokenConfigure {
                             .check(r -> StpUtil.checkLogin());
                     SaRouter.match(SaHttpMethod.DELETE)
                             .match("/community/post/**")
+                            .check(r -> StpUtil.checkLogin());
+                    SaRouter.match(SaHttpMethod.GET)
+                            .match("/community/user/posts/**")
                             .check(r -> StpUtil.checkLogin());
                 })
                 // 异常处理方法：每次setAuth函数出现异常时进入

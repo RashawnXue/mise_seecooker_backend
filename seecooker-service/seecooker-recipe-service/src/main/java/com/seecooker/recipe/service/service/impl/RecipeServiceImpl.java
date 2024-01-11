@@ -5,30 +5,30 @@ import com.aliyuncs.exceptions.ClientException;
 import com.seecooker.common.core.enums.ImageType;
 import com.seecooker.common.core.exception.BizException;
 import com.seecooker.common.core.exception.ErrorType;
-
 import com.seecooker.common.core.model.Result;
 import com.seecooker.common.core.model.dto.user.UserDTO;
+import com.seecooker.common.redis.enums.RedisKey;
 import com.seecooker.feign.user.UserClient;
-import com.seecooker.recipe.service.dao.IngredientAmountDao;
 import com.seecooker.recipe.service.dao.IngredientDao;
 import com.seecooker.recipe.service.dao.RecipeDao;
 import com.seecooker.recipe.service.dao.RecipeScoreDao;
-import com.seecooker.recipe.service.pojo.po.IngredientAmountPO;
 import com.seecooker.recipe.service.pojo.po.IngredientPO;
 import com.seecooker.recipe.service.pojo.po.RecipePO;
 import com.seecooker.recipe.service.pojo.po.RecipeScorePO;
-import com.seecooker.recipe.service.pojo.vo.PublishRecipeVO;
-import com.seecooker.recipe.service.pojo.vo.RecipeDetailVO;
-import com.seecooker.recipe.service.pojo.vo.RecipeListVO;
+import com.seecooker.recipe.service.pojo.vo.*;
 import com.seecooker.recipe.service.service.RecipeService;
 import com.seecooker.util.oss.AliOSSUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 菜谱业务服务层实现类
@@ -39,21 +39,22 @@ import java.util.*;
 @Slf4j
 @Service
 public class RecipeServiceImpl implements RecipeService {
-    private final IngredientAmountDao ingredientAmountDao;
     private final IngredientDao ingredientDao;
     private final RecipeScoreDao recipeScoreDao;
     private final RecipeDao recipeDao;
     private final UserClient userClient;
+    private final RedisTemplate redisTemplate;
+    private static final int PAGE_SIZE = 8;
 
     public RecipeServiceImpl(RecipeDao recipeDao,
                              RecipeScoreDao recipeScoreDao,
                              IngredientDao ingredientDao,
-                             IngredientAmountDao ingredientAmountDao, UserClient userClient) {
+                             UserClient userClient, RedisTemplate redisTemplate) {
         this.recipeDao = recipeDao;
         this.recipeScoreDao = recipeScoreDao;
         this.ingredientDao = ingredientDao;
-        this.ingredientAmountDao = ingredientAmountDao;
         this.userClient = userClient;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -65,37 +66,21 @@ public class RecipeServiceImpl implements RecipeService {
                 .cover(AliOSSUtil.uploadFile(cover, ImageType.RECIPE_COVER_IMAGE))
                 .stepImages(AliOSSUtil.uploadFile(stepImages, ImageType.RECIPE_STEP_IMAGE))
                 .stepContents(publishRecipe.getStepContents())
+                .ingredientList(publishRecipe.getIngredients())
+                .amountList(publishRecipe.getAmounts())
                 .createTime(LocalDateTime.now())
                 .updateTime(LocalDateTime.now())
                 .score(0.0)
+                .favoriteNum(0)
                 .build();
         recipe = recipeDao.save(recipe);
 
-        Result<UserDTO> getUserResult = userClient.getUserById(StpUtil.getLoginIdAsLong());
-        if (getUserResult.fail()) {
-            throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
-        }
-        UserDTO author = getUserResult.getData();
+        UserDTO author = getUser(StpUtil.getLoginIdAsLong());
         author.getPostRecipes().add(recipe.getId());
 
         Result<Void> updateRecipesResult = userClient.updatePostRecipes(StpUtil.getLoginIdAsLong(), author.getPostRecipes());
         if (updateRecipesResult.fail()) {
             throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
-        }
-
-        List<String> ingredients = publishRecipe.getIngredients();
-        List<String> amounts = publishRecipe.getAmounts();
-        for (int i = 0 ; i < ingredients.size() ; ++i) {
-            IngredientPO ingredient = IngredientPO.builder().name(ingredients.get(i)).createTime(LocalDateTime.now()).updateTime(LocalDateTime.now()).build();
-            ingredient = ingredientDao.save(ingredient);
-            IngredientAmountPO ingredientAmount = IngredientAmountPO.builder()
-                    .ingredientId(ingredient.getId())
-                    .amount(amounts.get(i))
-                    .recipeId(recipe.getId())
-                    .createTime(LocalDateTime.now())
-                    .updateTime(LocalDateTime.now())
-                    .build();
-            ingredientAmountDao.save(ingredientAmount);
         }
     }
 
@@ -110,26 +95,29 @@ public class RecipeServiceImpl implements RecipeService {
         RecipePO recipe = recipeDao.findById(recipeId).get();
 
         boolean isFavorite = false;
+        boolean isScored = false;
+        double score = 0.0;
         boolean isLogin = StpUtil.isLogin();
 
-        Result<UserDTO> authorResult = userClient.getUserById(recipe.getAuthorId());
-        if (authorResult.fail()) {
-            throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
-        }
-        UserDTO author = authorResult.getData();
+        UserDTO author = getUser(recipe.getAuthorId());
 
         if (isLogin) {
-            isFavorite = author.getFavoriteRecipes().contains(recipeId);
+            UserDTO user = getUser(StpUtil.getLoginIdAsLong());
+            isFavorite = user.getFavoriteRecipes().contains(recipeId);
+            RecipeScorePO recipeScore = recipeScoreDao.findRecipeScorePOByUserIdAndRecipeId(StpUtil.getLoginIdAsLong(), recipeId);
+            if (recipeScore != null) {
+                isScored = true;
+                score = recipeScore.getScore();
+            }
         }
 
         Map<String, String> ingredientAmount = new LinkedHashMap<>();
-        List<IngredientAmountPO> ingredientAmountPOS = ingredientAmountDao.getIngredientAmountPOSByRecipeId(recipeId);
-        for (IngredientAmountPO ingredientAmountPO : ingredientAmountPOS) {
-            IngredientPO ingredientPO = ingredientDao.findById(ingredientAmountPO.getIngredientId()).get();
-            ingredientAmount.put(ingredientPO.getName(),ingredientAmountPO.getAmount());
+        for (int i = 0 ; i < recipe.getIngredientList().size() ; ++i) {
+            ingredientAmount.put(recipe.getIngredientList().get(i), recipe.getAmountList().get(i));
         }
 
         return RecipeDetailVO.builder()
+                .authorId(author.getId())
                 .authorAvatar(author.getAvatar())
                 .authorName(author.getUsername())
                 .introduction(recipe.getIntroduction())
@@ -137,9 +125,12 @@ public class RecipeServiceImpl implements RecipeService {
                 .stepImages(recipe.getStepImages())
                 .name(recipe.getName())
                 .cover(recipe.getCover())
-                .isFavorite(isFavorite)
-                .score(recipe.getScore())
+                .favorite(isFavorite)
+                .averageScore(recipe.getScore())
+                .score(score)
+                .scored(isScored)
                 .ingredientAmounts(ingredientAmount)
+                .publishTime(recipe.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .build();
     }
 
@@ -156,6 +147,14 @@ public class RecipeServiceImpl implements RecipeService {
         if (result.fail()) {
             throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
         }
+        Optional<RecipePO> recipeOp = recipeDao.findById(recipeId);
+        if (recipeOp.isEmpty()) {
+            throw new BizException(ErrorType.RECIPE_NOT_EXIST);
+        }
+        RecipePO recipe = recipeOp.get();
+        // 更新收藏数据
+        recipe.setFavoriteNum(recipe.getFavoriteNum() + (result.getData() ? 1 : -1));
+        recipeDao.save(recipe);
         return result.getData();
     }
 
@@ -170,11 +169,92 @@ public class RecipeServiceImpl implements RecipeService {
                 .createTime(LocalDateTime.now()).updateTime(LocalDateTime.now()).build();
         recipeScoreDao.save(recipeScore);
         RecipePO recipe = recipeDao.findById(recipeId).get();
-        List<RecipeScorePO> recipeScorePOS = recipeScoreDao.findRecipeScorePOSByRecipeId(recipeId);
-        double averageScore = recipeScorePOS.stream().mapToDouble(RecipeScorePO::getScore).average().getAsDouble();
+        List<RecipeScorePO> recipeScorePOList = recipeScoreDao.findRecipeScorePOSByRecipeId(recipeId);
+        double averageScore = recipeScorePOList.stream().mapToDouble(RecipeScorePO::getScore).average().getAsDouble();
         recipe.setScore(averageScore);
         recipeDao.save(recipe);
         return averageScore;
+    }
+
+    @Override
+    public List<RecipeListVO> getRecipesByPage(Integer pageNo) {
+        List<RecipePO> recipes = recipeDao.findAll(PageRequest.of(pageNo, PAGE_SIZE)).stream().toList();
+        return mapRecipes(recipes);
+    }
+
+    @Override
+    public List<RecipeListVO> getFavoriteRecipes(Long userId) {
+        UserDTO user = getUser(userId);
+        List<RecipePO> recipes = recipeDao.findAllById(user.getFavoriteRecipes());
+        return mapRecipes(recipes);
+    }
+
+    @Override
+    public List<String> getRandomRecipeName() {
+        return recipeDao.getRandomName();
+    }
+
+    @Override
+    public List<ExploreVO> getRecipesByIngredient(List<String> ingredients) {
+        List<RecipePO> recipes = recipeDao.findAll();
+        Set<String> ingredientSet = new LinkedHashSet<>(ingredients);
+        List<ExploreVO> result = new ArrayList<>();
+        for (RecipePO recipe : recipes) {
+            int cnt = 0;
+            boolean favorite = false;
+            for (String ingredient : recipe.getIngredientList()) {
+                if (ingredientSet.contains(ingredient)) {
+                    cnt++;
+                }
+            }
+            if (StpUtil.isLogin()) {
+                UserDTO user = getUser(StpUtil.getLoginIdAsLong());
+                favorite = user.getFavoriteRecipes().contains(recipe.getId());
+            }
+            if (cnt == ingredientSet.size()) {
+                UserDTO author = getUser(recipe.getAuthorId());
+                result.add(ExploreVO.builder()
+                                .recipeId(recipe.getId())
+                                .name(recipe.getName())
+                                .authorAvatar(author.getAvatar())
+                                .authorName(author.getUsername())
+                                .introduction(recipe.getIntroduction())
+                                .favorite(favorite)
+                                .cover(recipe.getCover())
+                                .build());
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<IngredientVO> getIngredients() {
+        Map<String, IngredientVO> map = new LinkedHashMap<>();
+        if (redisTemplate.hasKey(RedisKey.INGREDIENT.getKey())) {
+            map = (Map<String, IngredientVO>) redisTemplate.opsForValue().get(RedisKey.INGREDIENT.getKey());
+        } else {
+            List<IngredientPO> ingredients = ingredientDao.findAll();
+            for (IngredientPO ingredient : ingredients) {
+                if (map.containsKey(ingredient.getCategory())) {
+                    IngredientVO names = map.get(ingredient.getCategory());
+                    names.getName().add(ingredient.getName());
+                } else {
+                    map.put(ingredient.getCategory(), IngredientVO.builder()
+                            .category(ingredient.getCategory())
+                            .name(new ArrayList<>(Arrays.asList(ingredient.getName())))
+                            .build());
+                }
+            }
+            redisTemplate.opsForValue().set(RedisKey.INGREDIENT.getKey(), map, 1000*60*60L, TimeUnit.MILLISECONDS);
+        }
+        return new ArrayList<>(map.values());
+    }
+
+    @Override
+    public List<RecipeListVO> getPublishRecipe(Long userId) {
+        UserDTO user = getUser(userId);
+        List<RecipePO> recipe = recipeDao.findAllById(user.getPostRecipes());
+        return mapRecipes(recipe);
     }
 
     private List<RecipeListVO> mapRecipes(List<RecipePO> recipes) {
@@ -182,37 +262,40 @@ public class RecipeServiceImpl implements RecipeService {
         List<Long> favoriteRecipes;
         if (isLogin) {
             Long userId = StpUtil.getLoginIdAsLong();
-            Result<UserDTO> userResult = userClient.getUserById(userId);
-            if (userResult.fail()) {
-                throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
-            }
-            UserDTO user = userResult.getData();
+            UserDTO user = getUser(userId);
             favoriteRecipes = user.getFavoriteRecipes();
         } else {
             favoriteRecipes = Collections.emptyList();
         }
-        return recipes.stream().sorted(Comparator.comparing(RecipePO::getCreateTime))
+        return recipes.stream()
                 .map(recipePO -> {
-                    Result<UserDTO> authorResult = userClient.getUserById(recipePO.getAuthorId());
-                    if (authorResult.fail()) {
-                        throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
-                    }
-                    UserDTO author = authorResult.getData();
+                    UserDTO author = getUser(recipePO.getAuthorId());
                     boolean isFavorite = false;
                     if (isLogin) {
                         isFavorite = favoriteRecipes.contains(recipePO.getId());
                     }
                     return RecipeListVO.builder()
                             .cover(recipePO.getCover())
-                            .id(recipePO.getId())
+                            .recipeId(recipePO.getId())
                             .name(recipePO.getName())
                             .introduction(recipePO.getIntroduction())
                             .score(recipePO.getScore())
+                            .authorId(author.getId())
                             .authorAvatar(author.getAvatar())
                             .authorName(author.getUsername())
-                            .isFavorite(isFavorite)
+                            .favorite(isFavorite)
+                            .favoriteNum(recipePO.getFavoriteNum())
+                            .publishTime(recipePO.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                             .build();
                 })
                 .toList();
+    }
+
+    private UserDTO getUser(Long userId) {
+        Result<UserDTO> userResult = userClient.getUserById(userId);
+        if (userResult.fail()) {
+            throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
+        }
+        return userResult.getData();
     }
 }

@@ -3,7 +3,7 @@ package com.seecooker.community.service.service;
 import com.seecooker.community.service.pojo.vo.CommentVO;
 import com.seecooker.community.service.pojo.vo.PostCommentVO;
 import com.seecooker.community.service.pojo.vo.PostDetailVO;
-import com.seecooker.community.service.pojo.vo.PostVO;
+import com.seecooker.community.service.pojo.vo.PostListVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public interface PostService {
      *
      * @return 帖子列表
      */
-    List<PostVO> getPosts();
+    List<PostListVO> getPosts();
 
     /**
      * 获取帖子详情
@@ -69,4 +69,20 @@ public interface PostService {
      * @param id 帖子id
      */
     void deletePost(Long id);
+
+    /**
+     * 获取用户发布的帖子
+     *
+     * @param userId 用户id
+     * @return 用户发布的帖子
+     */
+    List<PostListVO> getUserPosts(Long userId);
+
+    /**
+     * 分页获取帖子
+     *
+     * @param pageNo 页码
+     * @return 结果
+     */
+    List<PostListVO> getPostsByPage(Integer pageNo);
 }

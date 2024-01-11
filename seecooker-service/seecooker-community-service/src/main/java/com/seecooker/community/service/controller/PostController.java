@@ -1,11 +1,10 @@
 package com.seecooker.community.service.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.seecooker.common.core.model.Result;
 import com.seecooker.community.service.pojo.vo.CommentVO;
 import com.seecooker.community.service.pojo.vo.PostCommentVO;
 import com.seecooker.community.service.pojo.vo.PostDetailVO;
-import com.seecooker.community.service.pojo.vo.PostVO;
+import com.seecooker.community.service.pojo.vo.PostListVO;
 import com.seecooker.community.service.service.PostService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -45,14 +44,25 @@ public class PostController {
     }
 
     /**
-     * 获取帖子，每次至多获取10条
+     * 获取帖子
      *
      * @return 响应结果
      */
     @GetMapping("community/posts")
-    public Result<List<PostVO>> getPosts() {
-        // TODO: 目前为直接获取所有帖子，后续迭代中修改为获取分页推荐10条帖子
-        List<PostVO> posts = postService.getPosts();
+    public Result<List<PostListVO>> getPosts() {
+        List<PostListVO> posts = postService.getPosts();
+        return Result.success(posts);
+    }
+
+    /**
+     * 分页获取帖子
+     *
+     * @param pageNo 页码
+     * @return 结果
+     */
+    @GetMapping("community/posts/page/{pageNo}")
+    public Result<List<PostListVO>> getPostsByPage(@PathVariable @NotNull Integer pageNo) {
+        List<PostListVO> posts = postService.getPostsByPage(pageNo);
         return Result.success(posts);
     }
 
@@ -117,5 +127,17 @@ public class PostController {
     public Result<Void> deletePost(@PathVariable @NotNull Long id) {
         postService.deletePost(id);
         return Result.success();
+    }
+
+    /**
+     * 根据用户id获取用户发布的帖子
+     *
+     * @param userId 用户id
+     * @return 用户发布的帖子
+     */
+    @GetMapping("community/user/posts/{userId}")
+    public Result<List<PostListVO>> getUserPosts(@PathVariable @NotNull Long userId) {
+        List<PostListVO> result = postService.getUserPosts(userId);
+        return Result.success(result);
     }
 }
