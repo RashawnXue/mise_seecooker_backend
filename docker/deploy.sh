@@ -7,7 +7,6 @@ usage() {
 }
 
 # shellcheck disable=SC2120
-echo "$1, $2, $3, $4, $5, $6, $7, $8"
 sshpass -p "$5" scp -o StrictHostKeyChecking=no "$1" "$4":~
 sshpass -p "$5" scp -o StrictHostKeyChecking=no "$2" "$4":~
 sshpass -p "$5" ssh -o StrictHostKeyChecking=no "$4" \
