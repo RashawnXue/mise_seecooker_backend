@@ -77,4 +77,12 @@ public interface PostService {
      * @return 用户发布的帖子
      */
     List<PostListVO> getUserPosts(Long userId);
+
+    /**
+     * 分页获取帖子
+     *
+     * @param pageNo 页码
+     * @return 结果
+     */
+    List<PostListVO> getPostsByPage(Integer pageNo);
 }

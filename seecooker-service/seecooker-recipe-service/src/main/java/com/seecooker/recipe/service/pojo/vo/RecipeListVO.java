@@ -17,7 +17,7 @@ public class RecipeListVO {
     /**
      * 菜谱id
      */
-    private Long id;
+    private Long recipeId;
 
     /**
      * 菜谱名
@@ -28,6 +28,11 @@ public class RecipeListVO {
      * 菜谱封面url
      */
     private String cover;
+
+    /**
+     * 作者id
+     */
+    private Long authorId;
 
     /**
      * 作者名
@@ -50,7 +55,17 @@ public class RecipeListVO {
     private Double score;
 
     /**
+     * 发布时间
+     */
+    private String publishTime;
+
+    /**
      * 是否收藏，未登陆默认False
      */
-    private Boolean isFavorite;
+    private Boolean favorite;
+
+    /**
+     * 收藏数
+     */
+    private Integer favoriteNum;
 }

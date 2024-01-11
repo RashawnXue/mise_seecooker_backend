@@ -63,4 +63,9 @@ public class PostListVO {
      * 评论数
      */
     private Integer commentNum;
+
+    /**
+     * 内容
+     */
+    private String content;
 }

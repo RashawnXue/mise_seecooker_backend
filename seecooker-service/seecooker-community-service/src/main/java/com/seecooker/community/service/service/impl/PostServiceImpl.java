@@ -21,6 +21,7 @@ import com.seecooker.feign.user.UserClient;
 import com.seecooker.util.oss.AliOSSUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,6 +43,7 @@ public class PostServiceImpl implements PostService {
     private final PostDao postDao;
     private final CommentDao commentDao;
     private final UserClient userClient;
+    private final int pageSize = 8;
 
     public PostServiceImpl(PostDao postDao, CommentDao commentDao, UserClient userClient) {
         this.postDao = postDao;
@@ -109,6 +111,7 @@ public class PostServiceImpl implements PostService {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .images(post.getImages())
+                .posterId(poster.getId())
                 .posterName(poster.getUsername())
                 .posterAvatar(poster.getAvatar())
                 .like(like) // 未登陆默认为false
@@ -143,7 +146,9 @@ public class PostServiceImpl implements PostService {
         if (!postDao.existsById(postId)) {
             throw new BizException(ErrorType.POST_NOT_EXIST);
         }
-        List<CommentPO> commentPOs = commentDao.findAllByPostId(postId);
+        PostPO post = postDao.findById(postId).get();
+
+        List<CommentPO> commentPOs = commentDao.findAllById(post.getCommentIdList());
         return commentPOs.stream()
                 .sorted(Comparator.comparing(CommentPO::getCreateTime))
                 .map(this::commentMapper)
@@ -197,6 +202,12 @@ public class PostServiceImpl implements PostService {
         return mapPost(posts);
     }
 
+    @Override
+    public List<PostListVO> getPostsByPage(Integer pageNo) {
+        List<PostPO> posts = postDao.findAll(PageRequest.of(pageNo, pageSize)).stream().toList();
+        return mapPost(posts);
+    }
+
     private CommentVO commentMapper(CommentPO commentPO) {
         // 评论VO的映射
         UserDTO commenter = getUser(commentPO.getCommenterId());
@@ -246,6 +257,7 @@ public class PostServiceImpl implements PostService {
                     .likeNum(postPO.getLikeUserIdList().size())
                     .publishTime(postPO.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                     .commentNum(postPO.getCommentIdList().size())
+                    .content(postPO.getContent())
                     .build();
         }).toList();
     }

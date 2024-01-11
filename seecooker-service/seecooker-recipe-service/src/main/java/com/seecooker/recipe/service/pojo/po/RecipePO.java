@@ -74,6 +74,21 @@ public class RecipePO {
     private List<String> stepContents;
 
     /**
+     * 收藏数
+     */
+    private Integer favoriteNum;
+
+    /**
+     * 配料
+     */
+    private List<String> ingredientList;
+
+    /**
+     * 配料量
+     */
+    private List<String> amountList;
+
+    /**
      * 数据创建的时间戳
      */
     @CreationTimestamp

@@ -33,6 +33,7 @@ import java.util.Optional;
 @Transactional
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
+    private final static String DEFAULT_AVATAR = "https://dummyimage.com/100x100";
 
     public UserServiceImpl(UserDao userDao) {
         this.userDao = userDao;
@@ -49,7 +50,7 @@ public class UserServiceImpl implements UserService {
         user = userDao.save(UserPO.builder()
                         .username(username)
                         .password(BCrypt.hashpw(password))
-                        .avatar(avatar)
+                        .avatar(avatar == null ? DEFAULT_AVATAR : avatar)
                         .posts(Collections.emptyList())
                         .postRecipes(Collections.emptyList())
                         .favoriteRecipes(Collections.emptyList())

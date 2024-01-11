@@ -43,6 +43,11 @@ public class RecipeDetailVO {
     private List<String> stepContents;
 
     /**
+     * 作者id
+     */
+    private Long authorId;
+
+    /**
      * 作者名
      */
     private String authorName;
@@ -55,15 +60,30 @@ public class RecipeDetailVO {
     /**
      * 是否收藏，为登陆默认为false
      */
-    private Boolean isFavorite;
+    private Boolean favorite;
 
     /**
-     * 评分
+     * 是否已评分
+     */
+    private Boolean scored;
+
+    /**
+     * 评分，未登陆和未评分默认为0
      */
     private Double score;
+
+    /**
+     * 平均分
+     */
+    private Double averageScore;
 
     /**
      * 配料量
      */
     private Map<String, String> ingredientAmounts;
+
+    /**
+     * 发布时间
+     */
+    private String publishTime;
 }

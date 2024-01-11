@@ -27,6 +27,11 @@ public class PostDetailVO {
     private String content;
 
     /**
+     * 发布者id
+     */
+    private Long posterId;
+
+    /**
      * 发布者头像url
      */
     private String posterAvatar;

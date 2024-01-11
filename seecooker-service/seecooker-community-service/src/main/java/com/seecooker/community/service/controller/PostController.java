@@ -44,14 +44,25 @@ public class PostController {
     }
 
     /**
-     * 获取帖子，每次至多获取10条
+     * 获取帖子
      *
      * @return 响应结果
      */
     @GetMapping("community/posts")
     public Result<List<PostListVO>> getPosts() {
-        // TODO: 目前为直接获取所有帖子，后续迭代中修改为获取分页推荐10条帖子
         List<PostListVO> posts = postService.getPosts();
+        return Result.success(posts);
+    }
+
+    /**
+     * 分页获取帖子
+     *
+     * @param pageNo 页码
+     * @return 结果
+     */
+    @GetMapping("community/posts/page/{pageNo}")
+    public Result<List<PostListVO>> getPostsByPage(@PathVariable @NotNull Integer pageNo) {
+        List<PostListVO> posts = postService.getPostsByPage(pageNo);
         return Result.success(posts);
     }
 

@@ -10,7 +10,7 @@ spring:
       discovery:
         server-addr: 124.222.18.205:8848
         namespace: public
-        ip: 124.223.39.48
+        ip: localhost
       config:
         server-addr: 124.222.18.205:8848
         file-extension: yaml
