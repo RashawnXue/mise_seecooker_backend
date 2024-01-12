@@ -112,7 +112,6 @@ public class UserServiceImpl implements UserService {
                 .username(user.get().getUsername())
                 .avatar(user.get().getAvatar())
                 .postNum(user.get().getPosts().size())
-                // TODO: 添加获赞数
                 .getLikedNum(0)
                 .signature(user.get().getSignature())
                 .build();
