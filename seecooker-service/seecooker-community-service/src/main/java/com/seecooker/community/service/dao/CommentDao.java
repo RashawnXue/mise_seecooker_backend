@@ -15,5 +15,4 @@ import java.util.List;
  */
 @Repository
 public interface CommentDao extends JpaRepository<CommentPO, Long> {
-    List<CommentPO> findAllByPostId(Long postId);
 }

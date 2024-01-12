@@ -1,9 +1,7 @@
 package com.seecooker.recipe.service.service;
 
 import com.aliyuncs.exceptions.ClientException;
-import com.seecooker.recipe.service.pojo.vo.PublishRecipeVO;
-import com.seecooker.recipe.service.pojo.vo.RecipeDetailVO;
-import com.seecooker.recipe.service.pojo.vo.RecipeListVO;
+import com.seecooker.recipe.service.pojo.vo.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -22,7 +20,6 @@ public interface RecipeService {
      * @param publishRecipe VO类
      * @param cover 封面图
      * @param stepImages 步骤图
-     * @return 添加菜谱id
      */
     void addRecipe(PublishRecipeVO publishRecipe, MultipartFile cover, MultipartFile[] stepImages) throws IOException, ClientException;
 
@@ -65,4 +62,50 @@ public interface RecipeService {
      * @return 菜谱均分
      */
     double scoreRecipe(Long recipeId, Double score);
+
+    /**
+     * 根据页码获取菜谱
+     *
+     * @param pageNo 页码数
+     * @return 结果
+     */
+    List<RecipeListVO> getRecipesByPage(Integer pageNo);
+
+    /**
+     * 获取用户收藏的菜谱
+     *
+     * @param userId 用户id
+     * @return 结果
+     */
+    List<RecipeListVO> getFavoriteRecipes(Long userId);
+
+    /**
+     * 获取随机菜谱名
+     *
+     * @return 结果
+     */
+    List<String> getRandomRecipeName();
+
+    /**
+     * 根据配料获取菜谱
+     *
+     * @param ingredients 配料
+     * @return 结果
+     */
+    List<ExploreVO> getRecipesByIngredient(List<String> ingredients);
+
+    /**
+     * 获取配料
+     *
+     * @return 结果
+     */
+    List<IngredientVO> getIngredients();
+
+    /**
+     * 获取用户发布的菜谱
+     *
+     * @param userId 用户id
+     * @return 结果
+     */
+    List<RecipeListVO> getPublishRecipe(Long userId);
 }

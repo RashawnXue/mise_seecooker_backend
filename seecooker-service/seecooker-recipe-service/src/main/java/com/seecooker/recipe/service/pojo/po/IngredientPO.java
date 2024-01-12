@@ -36,6 +36,12 @@ public class IngredientPO {
     private String name;
 
     /**
+     * 分类
+     */
+    @NotNull
+    private String category;
+
+    /**
      * 数据创建的时间戳
      */
     @CreationTimestamp

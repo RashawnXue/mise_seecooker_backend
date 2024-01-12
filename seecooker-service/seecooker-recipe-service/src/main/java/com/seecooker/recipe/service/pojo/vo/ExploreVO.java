@@ -5,17 +5,17 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 菜谱预览VO类
+ * 发现菜谱VO来
  *
  * @author xueruichen
- * @date 2023.11.27
+ * @date 2024.01.11
  */
 @Getter
 @Setter
 @Builder
-public class RecipeListVO {
+public class ExploreVO {
     /**
-     * 菜谱id
+     * id
      */
     private Long recipeId;
 
@@ -25,14 +25,14 @@ public class RecipeListVO {
     private String name;
 
     /**
-     * 菜谱封面url
+     * 介绍
      */
-    private String cover;
+    private String introduction;
 
     /**
-     * 作者id
+     * 封面图
      */
-    private Long authorId;
+    private String cover;
 
     /**
      * 作者名
@@ -45,27 +45,7 @@ public class RecipeListVO {
     private String authorAvatar;
 
     /**
-     * 简介
-     */
-    private String introduction;
-
-    /**
-     * 评分
-     */
-    private Double score;
-
-    /**
-     * 发布时间
-     */
-    private String publishTime;
-
-    /**
-     * 是否收藏，未登陆默认False
+     * 是否收藏
      */
     private Boolean favorite;
-
-    /**
-     * 收藏数
-     */
-    private Integer favoriteNum;
 }

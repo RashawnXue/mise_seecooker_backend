@@ -1,13 +1,10 @@
 package com.seecooker.recipe.service.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.aliyuncs.exceptions.ClientException;
 import com.seecooker.common.core.exception.BizException;
 import com.seecooker.common.core.exception.ErrorType;
 import com.seecooker.common.core.model.Result;
-import com.seecooker.recipe.service.pojo.vo.PublishRecipeVO;
-import com.seecooker.recipe.service.pojo.vo.RecipeDetailVO;
-import com.seecooker.recipe.service.pojo.vo.RecipeListVO;
+import com.seecooker.recipe.service.pojo.vo.*;
 import com.seecooker.recipe.service.service.RecipeService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -70,12 +67,24 @@ public class RecipeController {
     }
 
     /**
+     * 分页获取菜谱列表
+     *
+     * @param pageNo 页码
+     * @return 响应结果
+     */
+    @GetMapping("recipe/list/page/{pageNo}")
+    public Result<List<RecipeListVO>> getRecipesByPage(@PathVariable @NotNull Integer pageNo) {
+        List<RecipeListVO> recipes = recipeService.getRecipesByPage(pageNo);
+        return Result.success(recipes);
+    }
+
+    /**
      * 根据菜谱id获取菜谱细节
      *
      * @param recipeId 菜谱id
      * @return 菜谱细节VO类
      */
-    @GetMapping("recipe/{recipeId}")
+    @GetMapping("recipe/detail/{recipeId}")
     public Result<RecipeDetailVO> getRecipeDetail(@PathVariable @NotNull Long recipeId) {
         RecipeDetailVO recipeDetail = recipeService.getRecipeDetailById(recipeId);
         return Result.success(recipeDetail);
@@ -115,6 +124,67 @@ public class RecipeController {
     @PostMapping("recipe/score")
     public Result<Double> scoreRecipe(Long recipeId, Double score) {
         double result = recipeService.scoreRecipe(recipeId, score);
+        return Result.success(result);
+    }
+
+    /**
+     * 根据用户id获取用户收藏菜谱
+     *
+     * @param userId 用户id
+     * @return 用户收藏菜谱
+     */
+    @GetMapping("recipe/favorites/{userId}")
+    public Result<List<RecipeListVO>> getFavoriteRecipes(@PathVariable @NotNull Long userId) {
+        List<RecipeListVO> result = recipeService.getFavoriteRecipes(userId);
+        return Result.success(result);
+    }
+
+    /**
+     * 获取推荐菜谱
+     *
+     * @return 响应结果
+     */
+    @GetMapping("recipe/recommend")
+    public Result<List<String>> recommendRecipe() {
+        List<String> result = recipeService.getRandomRecipeName();
+        return Result.success(result);
+    }
+
+    /**
+     * 发现菜谱
+     *
+     * @param ingredients 配料
+     * @return 响应结果
+     */
+    @GetMapping("recipe/explore")
+    public Result<List<ExploreVO>> explore(@RequestParam @NotNull List<String> ingredients) {
+        if (ingredients.isEmpty()) {
+            throw new BizException(ErrorType.ILLEGAL_ARGUMENTS, "配料不能为空");
+        }
+        List<ExploreVO> result = recipeService.getRecipesByIngredient(ingredients);
+        return Result.success(result);
+    }
+
+    /**
+     * 获取配料列表
+     *
+     * @return 响应结果
+     */
+    @GetMapping("recipe/ingredients")
+    public Result<List<IngredientVO>> getIngredients() {
+        List<IngredientVO> ingredients = recipeService.getIngredients();
+        return Result.success(ingredients);
+    }
+
+    /**
+     * 获取发布的菜谱
+     *
+     * @param userId 用户id
+     * @return 响应结果
+     */
+    @GetMapping("recipe/publish/{userId}")
+    public Result<List<RecipeListVO>> getPublishRecipe(@PathVariable @NotNull Long userId) {
+        List<RecipeListVO> result = recipeService.getPublishRecipe(userId);
         return Result.success(result);
     }
 }

@@ -2,17 +2,14 @@ package com.seecooker.user.service.controller;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
-import com.seecooker.common.core.model.Result;
 import com.seecooker.common.core.exception.BizException;
 import com.seecooker.common.core.exception.ErrorType;
-
-import com.seecooker.common.core.model.dto.user.UserDTO;
+import com.seecooker.common.core.model.Result;
 import com.seecooker.user.service.pojo.vo.LoginVO;
 import com.seecooker.user.service.pojo.vo.ModifyPwdVO;
 import com.seecooker.user.service.pojo.vo.RegisterVO;
 import com.seecooker.user.service.pojo.vo.UserInfoVO;
 import com.seecooker.user.service.service.UserService;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

@@ -15,13 +15,13 @@ import com.seecooker.community.service.pojo.po.PostPO;
 import com.seecooker.community.service.pojo.vo.CommentVO;
 import com.seecooker.community.service.pojo.vo.PostCommentVO;
 import com.seecooker.community.service.pojo.vo.PostDetailVO;
-import com.seecooker.community.service.pojo.vo.PostVO;
+import com.seecooker.community.service.pojo.vo.PostListVO;
 import com.seecooker.community.service.service.PostService;
 import com.seecooker.feign.user.UserClient;
 import com.seecooker.util.oss.AliOSSUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,6 +43,7 @@ public class PostServiceImpl implements PostService {
     private final PostDao postDao;
     private final CommentDao commentDao;
     private final UserClient userClient;
+    private final int pageSize = 8;
 
     public PostServiceImpl(PostDao postDao, CommentDao commentDao, UserClient userClient) {
         this.postDao = postDao;
@@ -60,17 +61,14 @@ public class PostServiceImpl implements PostService {
                 .posterId(posterId)
                 .images(postImages)
                 .likeUserIdList(Collections.emptyList())
+                .commentIdList(Collections.emptyList())
                 .createTime(LocalDateTime.now())
                 .updateTime(LocalDateTime.now())
                 .build();
         Long postId = postDao.save(post).getId();
 
         // 在poster发布的帖子内插入id
-        Result<UserDTO> posterResult = userClient.getUserById(posterId);
-        if (posterResult.fail()) {
-            throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
-        }
-        UserDTO poster = posterResult.getData();
+        UserDTO poster = getUser(posterId);
         poster.getPosts().add(postId);
 
         Result<Void> saveResult = userClient.updateUserPosts(posterId, poster.getPosts());
@@ -80,23 +78,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostVO> getPosts() {
+    public List<PostListVO> getPosts() {
         List<PostPO> posts = postDao.findAll();
         posts.sort(Comparator.comparing(PostPO::getCreateTime));
-        return posts.stream().map(postPO -> {
-            Result<UserDTO> posterResult = userClient.getUserById(postPO.getPosterId());
-            if (posterResult.fail()) {
-                throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
-            }
-            UserDTO poster = posterResult.getData();
-            return PostVO.builder()
-                    .postId(postPO.getId())
-                    .title(postPO.getTitle())
-                    .cover(postPO.getImages().isEmpty() ? null : postPO.getImages().get(0))
-                    .posterName(poster.getUsername())
-                    .posterAvatar(poster.getAvatar())
-                    .build();
-        }).toList();
+
+        return mapPost(posts);
     }
 
     @Override
@@ -107,11 +93,7 @@ public class PostServiceImpl implements PostService {
         }
         PostPO post = postOp.get();
 
-        Result<UserDTO> posterResult = userClient.getUserById(post.getPosterId());
-        if (posterResult.fail()) {
-            throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
-        }
-        UserDTO poster = posterResult.getData();
+        UserDTO poster = getUser(post.getPosterId());
 
         // 检查是否登陆
         boolean isLogin = StpUtil.isLogin();
@@ -129,6 +111,7 @@ public class PostServiceImpl implements PostService {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .images(post.getImages())
+                .posterId(poster.getId())
                 .posterName(poster.getUsername())
                 .posterAvatar(poster.getAvatar())
                 .like(like) // 未登陆默认为false
@@ -139,14 +122,21 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public CommentVO addComment(PostCommentVO postComment) {
+        Optional<PostPO> postOp = postDao.findById(postComment.getPostId());
+        if (postOp.isEmpty()) {
+            throw new BizException(ErrorType.POST_NOT_EXIST);
+        }
+        PostPO post = postOp.get();
         CommentPO comment = CommentPO.builder()
-                .postId(postComment.getPostId())
                 .commenterId(StpUtil.getLoginIdAsLong())
                 .content(postComment.getContent())
                 .createTime(LocalDateTime.now())
                 .updateTime(LocalDateTime.now())
                 .build();
         comment = commentDao.save(comment);
+        // 将评论id存入post
+        post.getCommentIdList().add(comment.getId());
+        postDao.save(post);
         return commentMapper(comment);
     }
 
@@ -156,7 +146,9 @@ public class PostServiceImpl implements PostService {
         if (!postDao.existsById(postId)) {
             throw new BizException(ErrorType.POST_NOT_EXIST);
         }
-        List<CommentPO> commentPOs = commentDao.findAllByPostId(postId);
+        PostPO post = postDao.findById(postId).get();
+
+        List<CommentPO> commentPOs = commentDao.findAllById(post.getCommentIdList());
         return commentPOs.stream()
                 .sorted(Comparator.comparing(CommentPO::getCreateTime))
                 .map(this::commentMapper)
@@ -194,11 +186,8 @@ public class PostServiceImpl implements PostService {
             throw new BizException(ErrorType.UNAUTHORIZED, "用户不能删除其他人发布的帖子");
         }
         postDao.delete(post);
-        Result<UserDTO> userResult = userClient.getUserById(userId);
-        if (userResult.fail()) {
-            throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
-        }
-        UserDTO user = userResult.getData();
+
+        UserDTO user = getUser(userId);
         user.getPosts().remove(id);
         Result<Void> updateResult = userClient.updateUserPosts(userId, user.getPosts());
         if (updateResult.fail()) {
@@ -206,18 +195,70 @@ public class PostServiceImpl implements PostService {
         }
     }
 
-    private CommentVO commentMapper(CommentPO commentPO) {
-        Result<UserDTO> commenterResult = userClient.getUserById(commentPO.getCommenterId());
-        if (commenterResult.fail()) {
-            throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
-        }
-        UserDTO commenter = commenterResult.getData();
+    @Override
+    public List<PostListVO> getUserPosts(Long userId) {
+        UserDTO user = getUser(userId);
+        List<PostPO> posts = postDao.findAllById(user.getPosts());
+        return mapPost(posts);
+    }
 
+    @Override
+    public List<PostListVO> getPostsByPage(Integer pageNo) {
+        List<PostPO> posts = postDao.findAll(PageRequest.of(pageNo, pageSize)).stream().toList();
+        return mapPost(posts);
+    }
+
+    private CommentVO commentMapper(CommentPO commentPO) {
+        // 评论VO的映射
+        UserDTO commenter = getUser(commentPO.getCommenterId());
         return CommentVO.builder()
+                .commenterId(commenter.getId())
                 .commenterName(commenter.getUsername())
                 .commenterAvatar(commenter.getAvatar())
                 .commentTime(commentPO.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .content(commentPO.getContent())
                 .build();
+    }
+
+    private UserDTO getUser(Long userId) {
+        // 调用feign-api 封装方法
+        Result<UserDTO> userResult = userClient.getUserById(userId);
+        if (userResult.fail()) {
+            throw new BizException(ErrorType.OPEN_FEIGN_API_ERROR);
+        }
+        return userResult.getData();
+    }
+
+    private List<PostListVO> mapPost(List<PostPO> posts) {
+        // 将postPOList映射
+        boolean isLogin = StpUtil.isLogin();
+        UserDTO currentUser;
+        if (isLogin) {
+            currentUser = getUser(StpUtil.getLoginIdAsLong());
+        } else {
+            currentUser = null;
+        }
+        return posts.stream().map(postPO -> {
+            UserDTO poster = getUser(postPO.getPosterId());
+
+            boolean like = false;
+            if (isLogin) {
+                like = postPO.getLikeUserIdList().contains(currentUser.getId());
+            }
+
+            return PostListVO.builder()
+                    .postId(postPO.getId())
+                    .title(postPO.getTitle())
+                    .cover(postPO.getImages().isEmpty() ? null : postPO.getImages().get(0))
+                    .posterId(poster.getId())
+                    .posterName(poster.getUsername())
+                    .posterAvatar(poster.getAvatar())
+                    .like(like)
+                    .likeNum(postPO.getLikeUserIdList().size())
+                    .publishTime(postPO.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                    .commentNum(postPO.getCommentIdList().size())
+                    .content(postPO.getContent())
+                    .build();
+        }).toList();
     }
 }
