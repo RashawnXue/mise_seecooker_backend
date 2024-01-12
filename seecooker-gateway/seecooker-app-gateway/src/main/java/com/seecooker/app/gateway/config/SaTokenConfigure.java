@@ -1,6 +1,5 @@
 package com.seecooker.app.gateway.config;
 
-
 import cn.dev33.satoken.reactor.filter.SaReactorFilter;
 import cn.dev33.satoken.router.SaHttpMethod;
 import cn.dev33.satoken.router.SaRouter;

@@ -8,7 +8,6 @@ import com.seecooker.user.service.pojo.po.UserPO;
 import com.seecooker.user.service.service.UserClientService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
