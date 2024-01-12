@@ -1,13 +1,12 @@
 package com.seecooker.recipe.service.controller;
 
-import com.seecooker.common.core.exception.BizException;
-import com.seecooker.common.core.exception.ErrorType;
 import com.seecooker.common.core.model.Result;
 import com.seecooker.recipe.service.service.LLMService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.DeferredResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 大模型访问控制层
