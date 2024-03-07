@@ -51,14 +51,14 @@ public class PostPO {
     private String content;
 
     /**
+     * 点赞数
+     */
+    private Integer likeNum;
+
+    /**
      * 帖子图片
      */
     private List<String> images;
-
-    /**
-     * 点赞用户id列表
-     */
-    private List<Long> likeUserIdList;
 
     /**
      * 评论id列表

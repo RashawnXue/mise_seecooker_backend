@@ -7,7 +7,7 @@ import com.seecooker.common.core.exception.BizException;
 import com.seecooker.common.core.exception.ErrorType;
 import com.seecooker.common.core.model.Result;
 import com.seecooker.common.core.model.dto.user.UserDTO;
-import com.seecooker.common.redis.enums.RedisKey;
+import com.seecooker.common.redis.utils.RedisUtil;
 import com.seecooker.feign.user.UserClient;
 import com.seecooker.recipe.service.dao.IngredientDao;
 import com.seecooker.recipe.service.dao.RecipeDao;
@@ -230,8 +230,8 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public List<IngredientVO> getIngredients() {
         Map<String, IngredientVO> map = new LinkedHashMap<>();
-        if (redisTemplate.hasKey(RedisKey.INGREDIENT.getKey())) {
-            map = (Map<String, IngredientVO>) redisTemplate.opsForValue().get(RedisKey.INGREDIENT.getKey());
+        if (redisTemplate.hasKey(RedisUtil.INGREDIENT)) {
+            map = (Map<String, IngredientVO>) redisTemplate.opsForValue().get(RedisUtil.INGREDIENT);
         } else {
             List<IngredientPO> ingredients = ingredientDao.findAll();
             for (IngredientPO ingredient : ingredients) {
@@ -245,7 +245,7 @@ public class RecipeServiceImpl implements RecipeService {
                             .build());
                 }
             }
-            redisTemplate.opsForValue().set(RedisKey.INGREDIENT.getKey(), map, 1000*60*60L, TimeUnit.MILLISECONDS);
+            redisTemplate.opsForValue().set(RedisUtil.INGREDIENT, map, 1000*60*60L, TimeUnit.MILLISECONDS);
         }
         return new ArrayList<>(map.values());
     }
