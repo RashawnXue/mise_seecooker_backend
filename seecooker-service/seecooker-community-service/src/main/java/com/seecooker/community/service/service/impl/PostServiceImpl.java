@@ -192,21 +192,21 @@ public class PostServiceImpl implements PostService {
         String userLikePostKey = RedisUtil.getUserLikeKey(userId, postId);
         String postLikeNumKey = RedisUtil.getPostLikeNumKey(postId);
 
-        // 判断缓存是否有点赞状态和点赞数
-        if (redisTemplate.opsForHash().hasKey(RedisUtil.USER_LIKE_POST_STATE, userLikePostKey)) {
+//        // 判断缓存是否有点赞状态和点赞数
+//        if (redisTemplate.opsForHash().hasKey(RedisUtil.USER_LIKE_POST_STATE, userLikePostKey)) {
             like = (boolean)redisTemplate.opsForHash().get(RedisUtil.USER_LIKE_POST_STATE, userLikePostKey);
-        } else {
-            UserLikePO userLikePO = userLikeDao.getUserLikePOByUserIdAndPostId(userId, postId);
-            if (userLikePO != null) {
-                like = userLikePO.getStatus();
-            }
-        }
-
-        if (redisTemplate.opsForHash().hasKey(RedisUtil.USER_LIKE_POST_NUM, postLikeNumKey)) {
+//        } else {
+//            UserLikePO userLikePO = userLikeDao.getUserLikePOByUserIdAndPostId(userId, postId);
+//            if (userLikePO != null) {
+//                like = userLikePO.getStatus();
+//            }
+//        }
+//
+//        if (redisTemplate.opsForHash().hasKey(RedisUtil.USER_LIKE_POST_NUM, postLikeNumKey)) {
             likeNum = (int)redisTemplate.opsForHash().get(RedisUtil.USER_LIKE_POST_NUM, postLikeNumKey);
-        } else {
-            likeNum = post.getLikeNum();
-        }
+//        } else {
+//            likeNum = post.getLikeNum();
+//        }
         // 进行相应修改
         redisTemplate.opsForHash().put(RedisUtil.USER_LIKE_POST_STATE, userLikePostKey, !like);
         redisTemplate.opsForHash().put(RedisUtil.USER_LIKE_POST_NUM, postLikeNumKey, likeNum + (like ? -1 : 1));
