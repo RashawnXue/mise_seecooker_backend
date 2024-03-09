@@ -5,23 +5,27 @@ import com.aliyuncs.exceptions.ClientException;
 import com.seecooker.common.core.enums.ImageType;
 import com.seecooker.common.core.exception.BizException;
 import com.seecooker.common.core.exception.ErrorType;
-
 import com.seecooker.common.core.model.Result;
 import com.seecooker.common.core.model.dto.user.UserDTO;
+import com.seecooker.common.redis.utils.RedisUtil;
 import com.seecooker.community.service.dao.CommentDao;
 import com.seecooker.community.service.dao.PostDao;
+import com.seecooker.community.service.dao.UserLikeDao;
+import com.seecooker.community.service.esdao.EsPostDao;
 import com.seecooker.community.service.pojo.po.CommentPO;
+import com.seecooker.community.service.pojo.po.EsPostPO;
 import com.seecooker.community.service.pojo.po.PostPO;
-import com.seecooker.community.service.pojo.vo.CommentVO;
-import com.seecooker.community.service.pojo.vo.PostCommentVO;
-import com.seecooker.community.service.pojo.vo.PostDetailVO;
-import com.seecooker.community.service.pojo.vo.PostListVO;
+import com.seecooker.community.service.pojo.po.UserLikePO;
+import com.seecooker.community.service.pojo.vo.*;
 import com.seecooker.community.service.service.PostService;
 import com.seecooker.feign.user.UserClient;
 import com.seecooker.util.oss.AliOSSUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,11 +48,17 @@ public class PostServiceImpl implements PostService {
     private final CommentDao commentDao;
     private final UserClient userClient;
     private final int pageSize = 8;
+    private final RedisTemplate redisTemplate;
+    private final UserLikeDao userLikeDao;
+    private final EsPostDao esPostDao;
 
-    public PostServiceImpl(PostDao postDao, CommentDao commentDao, UserClient userClient) {
+    public PostServiceImpl(PostDao postDao, CommentDao commentDao, UserClient userClient, RedisTemplate redisTemplate, UserLikeDao userLikeDao, EsPostDao esPostDao) {
         this.postDao = postDao;
         this.commentDao = commentDao;
         this.userClient = userClient;
+        this.redisTemplate = redisTemplate;
+        this.userLikeDao = userLikeDao;
+        this.esPostDao = esPostDao;
     }
 
     @Override
@@ -60,12 +70,19 @@ public class PostServiceImpl implements PostService {
                 .content(content)
                 .posterId(posterId)
                 .images(postImages)
-                .likeUserIdList(Collections.emptyList())
+                .likeNum(0)
                 .commentIdList(Collections.emptyList())
                 .createTime(LocalDateTime.now())
                 .updateTime(LocalDateTime.now())
                 .build();
-        Long postId = postDao.save(post).getId();
+        PostPO savedPost = postDao.save(post);
+        Long postId = savedPost.getId();
+        esPostDao.save(EsPostPO.builder()
+                        .id(savedPost.getId())
+                        .content(savedPost.getContent())
+                        .title(savedPost.getTitle())
+                        .createTime(savedPost.getCreateTime())
+                        .build());
 
         // 在poster发布的帖子内插入id
         UserDTO poster = getUser(posterId);
@@ -95,17 +112,33 @@ public class PostServiceImpl implements PostService {
 
         UserDTO poster = getUser(post.getPosterId());
 
+        String postLikeNumKey = RedisUtil.getPostLikeNumKey(id);
+
         // 检查是否登陆
         boolean isLogin = StpUtil.isLogin();
         boolean like = false;
 
         // 是否已点赞
         if (isLogin) {
-            like = post.getLikeUserIdList().contains(StpUtil.getLoginIdAsLong());
+            String key = RedisUtil.getUserLikeKey(StpUtil.getLoginIdAsLong(), id);
+            if (redisTemplate.opsForHash().hasKey(RedisUtil.USER_LIKE_POST_STATE, key)) {
+                like = (boolean)redisTemplate.opsForHash().get(RedisUtil.USER_LIKE_POST_STATE, key);
+            } else {
+                UserLikePO userLike = userLikeDao.getUserLikePOByUserIdAndPostId(StpUtil.getLoginIdAsLong(), id);
+                if (userLike != null) {
+                    like = userLike.getStatus();
+                }
+                redisTemplate.opsForHash().put(RedisUtil.USER_LIKE_POST_STATE, key, like);
+            }
         }
 
-        List<Long> likeUsersId = post.getLikeUserIdList();
-        int likeNum = likeUsersId.size();
+        int likeNum;
+        if (redisTemplate.opsForHash().hasKey(RedisUtil.USER_LIKE_POST_NUM, postLikeNumKey)) {
+            likeNum = (int)redisTemplate.opsForHash().get(RedisUtil.USER_LIKE_POST_NUM, postLikeNumKey);
+        } else {
+            likeNum = post.getLikeNum();
+            redisTemplate.opsForHash().put(RedisUtil.USER_LIKE_POST_NUM, postLikeNumKey, likeNum);
+        }
 
         return PostDetailVO.builder()
                 .title(post.getTitle())
@@ -156,22 +189,44 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Boolean likePost(Long postId) {
-        long userId = StpUtil.getLoginIdAsLong();
+    public Boolean likePost(Long userId, Long postId) {
         boolean like = false;
+        int likeNum = 0;
         Optional<PostPO> postOp = postDao.findById(postId);
         if (postOp.isEmpty()) {
             throw new BizException(ErrorType.POST_NOT_EXIST);
         }
         PostPO post = postOp.get();
 
-        if (!post.getLikeUserIdList().contains(userId)) {
-            like = true;
-            post.getLikeUserIdList().add(userId);
-            postDao.save(post);
-        }
+        String userLikePostKey = RedisUtil.getUserLikeKey(userId, postId);
+        String postLikeNumKey = RedisUtil.getPostLikeNumKey(postId);
 
-        return like;
+//        // 判断缓存是否有点赞状态和点赞数
+        if (redisTemplate.opsForHash().hasKey(RedisUtil.USER_LIKE_POST_STATE, userLikePostKey)) {
+            like = (boolean)redisTemplate.opsForHash().get(RedisUtil.USER_LIKE_POST_STATE, userLikePostKey);
+        } else {
+            UserLikePO userLikePO = userLikeDao.getUserLikePOByUserIdAndPostId(userId, postId);
+            if (userLikePO != null) {
+                like = userLikePO.getStatus();
+            }
+        }
+//
+        if (redisTemplate.opsForHash().hasKey(RedisUtil.USER_LIKE_POST_NUM, postLikeNumKey)) {
+            likeNum = (int)redisTemplate.opsForHash().get(RedisUtil.USER_LIKE_POST_NUM, postLikeNumKey);
+        } else {
+            likeNum = post.getLikeNum();
+        }
+        // 进行相应修改
+        redisTemplate.opsForHash().put(RedisUtil.USER_LIKE_POST_STATE, userLikePostKey, !like);
+        redisTemplate.opsForHash().put(RedisUtil.USER_LIKE_POST_NUM, postLikeNumKey, likeNum + (like ? -1 : 1));
+
+//        if (!post.getLikeUserIdList().contains(userId)) {
+//            like = true;
+//            post.getLikeUserIdList().add(userId);
+//            postDao.save(post);
+//        }
+
+        return !like;
     }
 
     @Override
@@ -206,6 +261,23 @@ public class PostServiceImpl implements PostService {
     public List<PostListVO> getPostsByPage(Integer pageNo) {
         List<PostPO> posts = postDao.findAll(PageRequest.of(pageNo, pageSize)).stream().toList();
         return mapPost(posts);
+    }
+
+    @Override
+    public List<EsPostVO> searchPosts(String keyword) {
+        SearchHits<EsPostPO> hits = esPostDao.find(keyword);
+        List<EsPostVO> result = new ArrayList<>();
+        for (SearchHit<EsPostPO> hit : hits) {
+            EsPostPO po = hit.getContent();
+            result.add(EsPostVO.builder()
+                            .id(po.getId())
+                            .content(po.getContent())
+                            .title(po.getTitle())
+                            .createTime(po.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                    .build());
+            log.info("highlight field: " + hit.getHighlightFields());
+        }
+        return result;
     }
 
     private CommentVO commentMapper(CommentPO commentPO) {
@@ -243,7 +315,10 @@ public class PostServiceImpl implements PostService {
 
             boolean like = false;
             if (isLogin) {
-                like = postPO.getLikeUserIdList().contains(currentUser.getId());
+                UserLikePO userLikePO = userLikeDao.getUserLikePOByUserIdAndPostId(StpUtil.getLoginIdAsLong(), postPO.getId());
+                if (userLikePO != null) {
+                    like = userLikePO.getStatus();
+                }
             }
 
             return PostListVO.builder()
@@ -254,7 +329,7 @@ public class PostServiceImpl implements PostService {
                     .posterName(poster.getUsername())
                     .posterAvatar(poster.getAvatar())
                     .like(like)
-                    .likeNum(postPO.getLikeUserIdList().size())
+                    .likeNum(postPO.getLikeNum())
                     .publishTime(postPO.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                     .commentNum(postPO.getCommentIdList().size())
                     .content(postPO.getContent())

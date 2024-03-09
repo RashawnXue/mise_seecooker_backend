@@ -1,9 +1,7 @@
 package com.seecooker.community.service.service;
 
-import com.seecooker.community.service.pojo.vo.CommentVO;
-import com.seecooker.community.service.pojo.vo.PostCommentVO;
-import com.seecooker.community.service.pojo.vo.PostDetailVO;
-import com.seecooker.community.service.pojo.vo.PostListVO;
+import com.seecooker.community.service.pojo.po.EsPostPO;
+import com.seecooker.community.service.pojo.vo.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -61,7 +59,7 @@ public interface PostService {
      * @param postId 帖子id
      * @return 帖子状态
      */
-    Boolean likePost(Long postId);
+    Boolean likePost(Long userId, Long postId);
 
     /**
      * 删除帖子
@@ -85,4 +83,6 @@ public interface PostService {
      * @return 结果
      */
     List<PostListVO> getPostsByPage(Integer pageNo);
+
+    List<EsPostVO> searchPosts(String keyword);
 }

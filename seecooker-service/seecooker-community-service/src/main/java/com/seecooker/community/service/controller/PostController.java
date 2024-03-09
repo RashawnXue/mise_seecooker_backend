@@ -1,13 +1,13 @@
 package com.seecooker.community.service.controller;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.seecooker.common.core.model.Result;
-import com.seecooker.community.service.pojo.vo.CommentVO;
-import com.seecooker.community.service.pojo.vo.PostCommentVO;
-import com.seecooker.community.service.pojo.vo.PostDetailVO;
-import com.seecooker.community.service.pojo.vo.PostListVO;
+import com.seecooker.community.service.pojo.po.EsPostPO;
+import com.seecooker.community.service.pojo.vo.*;
 import com.seecooker.community.service.service.PostService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,9 +26,11 @@ import java.util.List;
 @RequestMapping("/v2/")
 public class PostController {
     private final PostService postService;
+    private final RabbitTemplate rabbitTemplate;
 
-    public PostController(PostService postService) {
+    public PostController(PostService postService, RabbitTemplate rabbitTemplate) {
         this.postService = postService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     /**
@@ -111,10 +113,11 @@ public class PostController {
      * @return 响应结果-交互后的点赞状态
      */
     @PutMapping("community/like/{postId}")
-    public Result<Boolean> likePost(@PathVariable @NotNull Long postId) {
+    public Result<Void> likePost(@PathVariable @NotNull Long postId) {
         // 检查是否登陆，未登陆不能点赞
-        Boolean result = postService.likePost(postId);
-        return Result.success(result);
+        rabbitTemplate.convertAndSend("likePostQueue", StpUtil.getLoginIdAsLong() + ":" + postId);
+//        Boolean result = postService.likePost(postId);
+        return Result.success();
     }
 
     /**
@@ -139,5 +142,10 @@ public class PostController {
     public Result<List<PostListVO>> getUserPosts(@PathVariable @NotNull Long userId) {
         List<PostListVO> result = postService.getUserPosts(userId);
         return Result.success(result);
+    }
+
+    @GetMapping("community/posts/search")
+    public Result<List<EsPostVO>> searchPosts(@RequestParam String keyword) {
+        return Result.success(postService.searchPosts(keyword));
     }
 }

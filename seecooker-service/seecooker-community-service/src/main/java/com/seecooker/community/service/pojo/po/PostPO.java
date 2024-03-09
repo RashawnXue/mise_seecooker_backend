@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,6 +44,7 @@ public class PostPO {
      */
     @NotNull
     @Column(length = 100)
+    @Field(type = FieldType.Keyword)
     private String title;
 
     /**
@@ -48,17 +52,18 @@ public class PostPO {
      */
     @NotNull
     @Column(length = 3000)
+    @Field(type = FieldType.Keyword)
     private String content;
+
+    /**
+     * 点赞数
+     */
+    private Integer likeNum;
 
     /**
      * 帖子图片
      */
     private List<String> images;
-
-    /**
-     * 点赞用户id列表
-     */
-    private List<Long> likeUserIdList;
 
     /**
      * 评论id列表
