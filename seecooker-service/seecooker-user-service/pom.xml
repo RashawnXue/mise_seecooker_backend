@@ -9,7 +9,7 @@
     </parent>
     <artifactId>seecooker-user-service</artifactId>
     <version>0.2.0</version>
-    <name>seecooker-user-service2</name>
+    <name>seecooker-user-service</name>
     <description>seecooker-user-service</description>
     <properties>
         <java.version>17</java.version>
